@@ -1,0 +1,76 @@
+# Define a session name
+sessionname main
+
+# Use 256 colors
+term screen-256color
+
+# Disable default Welcome message
+startup_message off
+
+# detach on hangup
+autodetach on
+
+# Use X scrolling mechanism
+termcapinfo xterm* ti@:te@
+
+# Mouse tracking allows to switch region focus by clicking
+mousetrack on
+
+# Fix for residual editor text
+altscreen on
+
+# Scrollback buffer
+defscrollback 50000
+
+# Make search case-insensitive
+ignorecase on
+
+## Informative statusbar
+#hardstatus off
+#hardstatus alwayslastline
+#hardstatus string '%{= kG}[%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][ %{y}Load: %l %{g}][%{B} %d-%m %{W} %c %{g}]'
+
+
+# Open several screens per session
+screen -t BASH 1
+screen -t BASH 2
+screen -t BASH 3
+screen -t MONITORING 4
+screen -t weechat 5 weechat
+screen 6
+screen 7
+screen 8
+screen 9
+
+# Start window numbering at 1 not 0
+select 0
+bind c screen 1
+bind 0 select 10
+
+# Layout
+layout autosave on
+layout new one
+select 1
+layout save one
+layout new split
+select 1
+split -v
+resize +20
+focus
+select 4
+split
+focus
+select 5
+focus
+layout save split
+
+# Select the default layout
+layout attach one
+layout select one
+
+# Navigating regions with Ctrl-arrows
+bindkey "^[[1;5D" focus left # Left
+bindkey "^[[1;5C" focus # Right
+bindkey "^[[1;5A" focus up # Up
+bindkey "^[[1;5B" focus down # Down
+
