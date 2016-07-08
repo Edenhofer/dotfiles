@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Grep through more than just plain text files
+[[ $# -lt 2 ]] && echo "Usage: $(basename \"$0\") <string to grep for> <filename(s)>" && exit 1
+
+# Preserve the previous IFS (Internal Field Separator) settings
+previous_IFS=${IFS}
+# Solely escape proper spaces not those with baskslashes
+IFS=$(echo -en "\n\b")
+
+# Loop through parameters and split it into a file_list, grep_parms and the search_string
+file_list=()
+grep_parms=()
+search_string=""
+for arg in ${@}; do
+	if [[ ${arg} = \-* ]]; then
+		# This matches any parameter starting with an '-'
+		grep_parms+=("${arg}")
+	elif [[ -z ${search_string} ]]; then
+		# This matches the first non grep_parm string in the argument array
+		search_string="${arg}"
+	else
+		file_list+=("${arg}")
+	fi
+done
+[[ ${#file_list[@]} -lt 1 ]] && echo "No file specified" && exit 2
+
+# Expect that no match is found, hence the default exit code should be one
+exit_code=1
+for file in ${file_list[@]}; do
+	# Using $(file) is possible as well and it is properly implemented but commented out in the follwing code block
+	ext=$(echo ${file##*.}) #ext=$(file -L -p -b ${file}) && ext=${ext%% *}
+	case "$ext" in
+		odt|ods|odp|sxi) #OpenDocument)
+		# An odf file (Open Document Format e.g. odt) is simply a zipped folder in which content.xml contains the actual text in xml in format
+		# The sed command removes any content in between angle brackets ('<' and '>'), it is not an ideal solution but it gets the job done
+		text=$(unzip -p ${file} content.xml | xmllint --nowarning --format - | sed 's/<[^>]*>//g' | grep --color=always ${grep_parms[@]} "${search_string}")
+		;;
+
+		pdf) #PDF)
+		# pdftotext and pdfinfo is provided by poppler which should be isntalled if either cups, evince, libreoffice etc. is
+		# Search through the properties of a pdf file and the content
+		text=$(pdfinfo "${file}" | head -n6 | grep --color=always ${grep_parms[@]} "${search_string}")
+		text=${text}$(pdftotext -q "${file}" - | grep --color=always ${grep_parms[@]} "${search_string}")
+		;;
+
+		*)
+		text=$(grep --color=always ${grep_parms[@]} "${search_string}" "${file}")
+		;;
+	esac
+	# Break if grep reports an error - This must be executed immediately after grep!
+	[[ $? -eq 2 ]] && exit 2
+	# Exit 0 if at any point some text was found
+	[[ ! -z "${text}" ]] && exit_code=0
+
+	# Print merely the matching text in case just one file is opened otherwise print the filename for each hit
+	[[ ${#file_list[@]} -eq 1 && ! -z "${text}" ]] && echo "${text}"
+	[[ ${#file_list[@]} -gt 1 && ! -z "${text}" ]] && echo -e "\e[35m${file}\e[0m\e[94m:\e[0m${text//$'\n'/$'\n'"\e[35m${file}\e[0m\e[94m:\e[0m"}"
+done
+
+# Restore previous IFS settings
+IFS=${previous_IFS}
+
+exit ${exit_code}

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Chromium using tor proxy
+if which chromium &>/dev/null; then
+	if which systemctl &>/dev/null; then
+		[[ $(systemctl is-active tor) != "active" ]] && systemctl start tor
+	else
+		echo "Could not verify that Tor is running, please make sure it is. Proceeding anyway!"
+	fi
+	[[ -d /tmp/cache-tor-chromium ]] || mkdir -p /tmp/private-chromium-cache
+	torify curl -s ipinfo.io 2>&1 | grep -i "\"ip\"" | sed "s/ip/fake-ip/" | tr -d ",\n"
+	echo -n "  |"
+	curl -s ipinfo.io 2>&1 | grep -i "\"ip\"" | sed "s/ip/true-ip/" | tr -d ","
+	echo -e "\e[1mStarting chromium in incognito modus, keeping the cache in /tmp and using the local tor-proxy.\e[0m"
+	chromium --incognito --disk-cache-dir=/tmp/private-chromium-cache --proxy-server="socks://localhost:9050"
+else
+	echo "Could not find chromium!"
+fi

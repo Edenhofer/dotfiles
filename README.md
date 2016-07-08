@@ -34,37 +34,44 @@ You may use those cunfiguration files solely for inspiration or if you really li
 
 * Use the files as system wide defaults
 ```bash
-# Link the bash configration file
+# Link bash configuration file
 ln -s /etc/bash.bashrc $(pwd)/bash.bashrc
 
-# Link the inputrc
+# Link various scripts, not included in the bash configuration file
+# PREFERABLY INSTALL THOSE SCRIPTS ON A PER USER BASIS!
+ln -s $(pwd)/bin/* /usr/bin
+
+# Link inputrc file
 ln -s /etc/inputrc $(pwd)/inputrc
 
-# Link the vim (vi improved) configuration file
+# Link vim (vi improved) configuration file
 ln -s /etc/vimrc $(pwd)/vimrc
 
-# Link the GNU screen configuration file
+# Link GNU screen configuration file
 ln -s /etc/screenrc $(pwd)/screenrc
 
-# Link the color schemes for listing files
+# Link color schemes for listing files
 ln -s /etc/dircolors $(pwd)/dircolors
 ```
 
 * Use the files for a single user only
 ```bash
-# Link the bash configration file
+# Link bash configuration file
 ln -s ~/.bashrc $(pwd)/bash.bashrc
 
-# Link the inputrc
+# Link various scripts, not included in the bash configuration file
+mkdir -p ~/bin && ln -s $(pwd)/bin/* ~/bin
+
+# Link inputrc
 ln -s ~/.inputrc $(pwd)/inputrc
 
-# Link the vim (vi improved) configuration file
+# Link vim (vi improved) configuration file
 ln -s ~/.vimrc $(pwd)/vimrc
 
-# Link the GNU screen configuration file
+# Link GNU screen configuration file
 ln -s ~/.screenrc $(pwd)/screenrc
 
-# Link the color schemes for listing files
+# Link color schemes for listing files
 ln -s ~/.dircolors $(pwd)/dircolors
 ```
 
