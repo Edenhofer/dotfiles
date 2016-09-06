@@ -35,44 +35,44 @@ You may use those cunfiguration files solely for inspiration or if you really li
 * Use the files as system wide defaults
 ```bash
 # Link bash configuration file
-ln -s /etc/bash.bashrc $(pwd)/bash.bashrc
+ln -s $(pwd)/bash.bashrc /etc/bash.bashrc
 
 # Link various scripts, not included in the bash configuration file
 # PREFERABLY INSTALL THOSE SCRIPTS ON A PER USER BASIS!
 ln -s $(pwd)/bin/* /usr/bin
 
 # Link inputrc file
-ln -s /etc/inputrc $(pwd)/inputrc
+ln -s $(pwd)/inputrc /etc/inputrc
 
 # Link vim (vi improved) configuration file
-ln -s /etc/vimrc $(pwd)/vimrc
+ln -s $(pwd)/vimrc /etc/vimrc
 
 # Link GNU screen configuration file
-ln -s /etc/screenrc $(pwd)/screenrc
+ln -s $(pwd)/screenrc /etc/screenrc
 
 # Link color schemes for listing files
-ln -s /etc/dircolors $(pwd)/dircolors
+ln -s $(pwd)/dircolors /etc/dircolors
 ```
 
 * Use the files for a single user only
 ```bash
 # Link bash configuration file
-ln -s ~/.bashrc $(pwd)/bash.bashrc
+ln -s $(pwd)/bash.bashrc ~/.bashrc
 
 # Link various scripts, not included in the bash configuration file
 mkdir -p ~/bin && ln -s $(pwd)/bin/* ~/bin
 
 # Link inputrc
-ln -s ~/.inputrc $(pwd)/inputrc
+ln -s $(pwd)/inputrc ~/.inputrc
 
 # Link vim (vi improved) configuration file
-ln -s ~/.vimrc $(pwd)/vimrc
+ln -s $(pwd)/vimrc ~/.vimrc
 
 # Link GNU screen configuration file
-ln -s ~/.screenrc $(pwd)/screenrc
+ln -s $(pwd)/screenrc ~/.screenrc
 
 # Link color schemes for listing files
-ln -s ~/.dircolors $(pwd)/dircolors
+ln -s $(pwd)/dircolors ~/.dircolors
 ```
 
 ## See also
