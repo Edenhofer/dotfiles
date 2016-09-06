@@ -79,7 +79,7 @@ export HISTSIZE=5000              # bash history will save N commands
 export HISTFILESIZE=${HISTSIZE}   # bash will remember N commands
 export HISTTIMEFORMAT="%d. %h %H:%M:%S> "    # add timestamps to each command
 export HISTCONTROL=erasedups     # ingore duplicates
-export HISTIGNORE='&:exit:clear:history:logout'
+export HISTIGNORE='&:exit:logout:clear:history'
 
 # Colored manual pages
 # @see http://misc.flogisoft.com/bash/tip_colors_and_formatting for options
@@ -92,6 +92,9 @@ export HISTIGNORE='&:exit:clear:history:logout'
 #export LESS_TERMCAP_ue=$'\E[0m'			# end underline
 #export LESS_TERMCAP_us=$'\E[04m'			# begin underline
 
+# Colorful less
+export LESS='-r'
+
 # Enable autocolor for various commands through alias
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
@@ -101,7 +104,7 @@ alias grep='grep --color=auto'
 # Aliasing ls commands
 alias l='ls -hF --color=auto'
 alias lr='ls -R'  # recursive ls
-alias ll='ls -AlhF'
+alias ll='ls -alhF'
 alias lh='ls -ahrlt'
 alias la='ls -ah'
 
@@ -158,22 +161,22 @@ if which systemctl &>/dev/null; then
 	alias list-unit-files='systemctl list-unit-files'
 fi
 
-# Arch Linux support
-if [[ -f /etc/arch-release ]]; then
+# Pacman support
+if which pacman &>/dev/null; then
 	if [[ $UID -ne 0 ]]; then
 		alias pacman='sudo pacman'
 		alias mkinitcpio='sudo mkinitcpio'
-		# -c is used to specify the location of the package caches, adjust it to you liking
+		# A CUSTOM cache location can be specified with '-c', consider this a TODO for you to adjust
 		alias paccache='sudo paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
-		# Finding libraries which where renewed in an update but where the old version is still used, adjust it to your liking
-		alias outlib="sudo lsof -e /run/user/1000/gvfs +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sort -u"
-		alias outpac="sudo lsof -e /run/user/1000/gvfs +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sed -e 's/.so.*/.so/g' | pacman -Qoq - 2>/dev/null | sort -u"
+		# Finding libraries which where renewed in an update but where the old version is still used
+		alias outlib="sudo lsof +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sort -u"
+		alias outpac="sudo lsof +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sed -e 's/.so.*/.so/g' | pacman -Qoq - 2>/dev/null | sort -u"
 	else
-		# -c is used to specify the location of the package caches, adjust it to you liking
+		# A CUSTOM cache location can be specified with '-c', consider this a TODO for you to adjust
 		alias paccache='paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
-		# Finding libraries which where renewed in an update but where the old version is still used, adjust it to your liking
-		alias outlib="lsof -e /run/user/1000/gvfs +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sort -u"
-		alias outpac="lsof -e /run/user/1000/gvfs +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sed -e 's/.so.*/.so/g' | pacman -Qoq - 2>/dev/null | sort -u"
+		# Finding libraries which where renewed in an update but where the old version is still used
+		alias outlib="lsof +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sort -u"
+		alias outpac="lsof +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sed -e 's/.so.*/.so/g' | pacman -Qoq - 2>/dev/null | sort -u"
 	fi
 fi
 
