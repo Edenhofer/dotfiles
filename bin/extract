@@ -1,83 +1,87 @@
 #!/bin/bash
+#
+# extract: Archive extraction
+#
 
-# Archive extraction
-clrstart="\033[1;34m"  #color codes
-clrend="\033[0m"
+# Color codes
+ALL_OFF="$(tput sgr0)"
+BOLD="$(tput bold)"
+BLUE="${BOLD}$(tput setaf 4)"
+msg() {
+	(( QUIET )) && return
+	local mesg=$1; shift
+	printf "${BOLD}${mesg}${ALL_OFF}\n" "$@" >&1
+}
+ask() {
+	local mesg=$1; shift
+	printf "${BLUE}::${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}" "$@" >&1
+}
 
+# Error checking
 if [[ "$#" -lt 1 ]]; then
-	echo -e "${clrstart}Pass a filename. Optionally a destination folder. You can also append a v for verbose output.${clrend}"
-	exit 1 #not enough args
+	# Check for sufficient arguments
+	msg "Pass a filename, optionally a destination folder and additional parameters."
+	exit 1
+elif [[ ! -e "$1" ]]; then
+	# Check for file existance
+	msg "File does not exist!"
+	exit 2
 fi
 
-if [[ ! -e "$1" ]]; then
-	echo -e "${clrstart}File does not exist!${clrend}"
-	exit 2 #file not found
-fi
-
-if [[ -z "$2" ]]; then
-	DESTDIR="." #set destdir to current dir
-elif [[ ! -d "$2" ]]; then
-	echo -e -n "${clrstart}Destination folder doesn't exist or isnt a directory. Create? (y/n): ${clrend}"
-	read response
-	#echo -e "\n"
-	if [[ $response == y || $response == Y ]]; then
+# Define DESTDIR and default to the current location
+DESTDIR="."
+if [[ ! -d "$2" ]]; then
+	ask "Destination folder doesn't exist or is not a directory. Create? (y/n): "
+	read -n1 user_input
+	echo
+	if [[ "${user_input}" =~ (Y|y) ]]; then
 		mkdir -p "$2"
-		if [ $? -eq 0 ]; then
+		if [[ $? -eq 0 ]]; then
 			DESTDIR="$2"
 		else
-			exit 6 #Write perms error
+			# Write permission error
+			exit 6
 		fi
 	else
-		echo -e "${clrstart}Closing.${clrend}"; exit 3 # n/wrong response
+		# Invalid answer
+		msg "Closing."
+		exit 3
 	fi
 else
 	DESTDIR="$2"
 fi
 
-if [[ ! -z "$3" ]]; then
-	if [[ "$3" != "v" ]]; then
-		echo -e "${clrstart}Wrong argument $3 !${clrend}"
-		exit 4 #wrong arg 3
-	fi
-fi
+# Pass additional arguments on to tar
+[[ -z $2 ]] && params="${@:2}" || params="${@:3}"
 
+# Extract file
 filename=`basename "$1"`
-
 case "${filename##*.}" in
 	tar)
-	echo -e "${clrstart}Extracting $1 to $DESTDIR: (uncompressed tar)${clrend}"
-	tar x${3}f "$1" -C "$DESTDIR"
-	;;
+		msg "Extracting $1 to $DESTDIR: (uncompressed tar)"
+		tar xf "$1" -C "$DESTDIR" ${params};;
 	gz)
-	echo -e "${clrstart}Extracting $1 to $DESTDIR: (gip compressed tar)${clrend}"
-	tar x${3}fz "$1" -C "$DESTDIR"
-	;;
+		msg "Extracting $1 to $DESTDIR: (gzip compressed tar)"
+		tar xfz "$1" -C "$DESTDIR" ${params};;
 	tgz)
-	echo -e "${clrstart}Extracting $1 to $DESTDIR: (gip compressed tar)${clrend}"
-	tar x${3}fz "$1" -C "$DESTDIR"
-	;;
+		msg "Extracting $1 to $DESTDIR: (gzip compressed tar)"
+		tar xfz "$1" -C "$DESTDIR" ${params};;
 	xz)
-	echo -e "${clrstart}Extracting  $1 to $DESTDIR: (gip compressed tar)${clrend}"
-	tar x${3}f -J "$1" -C "$DESTDIR"
-	;;
+		msg "Extracting  $1 to $DESTDIR: (xz compressed tar)"
+		tar xfJ "$1" -C "$DESTDIR" ${params};;
 	bz2)
-	echo -e "${clrstart}Extracting $1 to $DESTDIR: (bzip compressed tar)${clrend}"
-	tar x${3}fj "$1" -C "$DESTDIR"
-	;;
+		msg "Extracting $1 to $DESTDIR: (bzip compressed tar)"
+		tar xfj "$1" -C "$DESTDIR" ${params};;
 	zip)
-	echo -e "${clrstart}Extracting $1 to $DESTDIR: (zipp compressed file)${clrend}"
-	unzip "$1" -d "$DESTDIR"
-	;;
+		msg "Extracting $1 to $DESTDIR: (zip compressed file)"
+		unzip "$1" -d "$DESTDIR" ${params};;
 	rar)
-	echo -e "${clrstart}Extracting $1 to $DESTDIR: (rar compressed file)${clrend}"
-	unrar x "$1" "$DESTDIR"
-	;;
+		msg "Extracting $1 to $DESTDIR: (rar compressed file)"
+		unrar x "$1" "$DESTDIR" ${params};;
 	7z)
-	echo -e  "${clrstart}Extracting $1 to $DESTDIR: (7zip compressed file)${clrend}"
-	7za e "$1" -o"$DESTDIR"
-	;;
+		msg "Extracting $1 to $DESTDIR: (7zip compressed file)"
+		7za e "$1" -o"$DESTDIR" ${params};;
 	*)
-	echo -e "${clrstart}Unknown archieve format!"
-	exit 5
-	;;
+		msg "Unknown archieve format!"
+		exit 5;;
 esac
