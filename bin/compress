@@ -5,6 +5,7 @@ if [[ -n "$1" ]]; then
 	FILE=$1
 	case $FILE in
 		*.tar ) shift && tar cf $FILE $* ;;
+		*.tar.xz ) shift && tar cJf $FILE $* ;;
 		*.tar.bz2 ) shift && tar cjf $FILE $* ;;
 		*.tar.gz ) shift && tar czf $FILE $* ;;
 		*.tgz ) shift && tar czf $FILE $* ;;
@@ -12,5 +13,5 @@ if [[ -n "$1" ]]; then
 		*.rar ) shift && rar $FILE $* ;;
 	esac
 else
-	echo "usage: compress <foo.tar.gz> ./foo ./bar"
+	echo "Usage: compress <filename.tar.xz> ./foo ./bar"
 fi
