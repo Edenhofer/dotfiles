@@ -1,61 +1,101 @@
 #!/bin/bash
+#
+# anygrep: Grep through more than just plain text files
+#
 
-# Grep through more than just plain text files
-[[ $# -lt 2 ]] && echo "Usage: $(basename \"$0\") <string to grep for> <filename(s)>" && exit 1
+# Define program name and version
+myname=$(basename "$0")
+myversion=1.0.0
+
+# Help function, no arguments required
+function help() {
+	cat <<-EOF
+	$myname $myversion
+	This script is design to grep simply anything: from pdfs, to odf and beyond.
+
+	Usage: $myname [-H] [-h] [-(grep paramter(s))] <search string> <filename(s)>
+	    -h, --help              Display this help message and exit
+	    -H, --with-filename     Print the file name for each match.  This is the default when there is more than one file to search.
+	    *, *                    Any valid grep parameter...
+
+	Examples:   # $myname -iHn5 whatis Document.odt
+
+	Copyright (c) Gordian Edenhofer <gordian.edenhofer@gmail.com>
+	The script requires bash>=4.2, zip, sed, libxml2 and poppler.
+	EOF
+}
 
 # Preserve the previous IFS (Internal Field Separator) settings
 previous_IFS=${IFS}
 # Solely escape proper spaces not those with baskslashes
 IFS=$(echo -en "\n\b")
 
+# Expect that no match is found, hence the default exit code should be one
+exit_code=1
+# Do not print filenames by default
+with_filename=false
+
 # Loop through parameters and split it into a file_list, grep_parms and the search_string
 file_list=()
 grep_parms=()
 search_string=""
-for arg in ${@}; do
-	if [[ ${arg} = \-* ]]; then
-		# This matches any parameter starting with an '-'
-		grep_parms+=("${arg}")
-	elif [[ -z ${search_string} ]]; then
-		# This matches the first non grep_parm string in the argument array
-		search_string="${arg}"
-	else
-		file_list+=("${arg}")
-	fi
+for option in "$@"; do
+	case "$option" in
+		-H|--with-filename)
+			with_filename=true;;
+		-h|--help)
+			help
+			exit 0;;
+		-*)
+			# Match any parameter starting with an '-'
+			grep_parms+=("${option}");;
+		*)
+			if [[ -z ${search_string} ]]; then
+				# Match the first non grep_parm string in the argument array
+				search_string="${option}"
+			else
+				file_list+=("${option}")
+			fi;;
+	esac
 done
-[[ ${#file_list[@]} -lt 1 ]] && echo "No file specified" && exit 2
+[[ ${#file_list[@]} -gt 1 ]] && with_filename=true
 
-# Expect that no match is found, hence the default exit code should be one
-exit_code=1
+# Stupid debug code
+if (( DEBUG )); then
+	echo "\"${file_list[@]}\""
+	echo "\"${grep_parms[@]}\""
+	echo "\"$search_string\""
+fi
+
+# Exit if no search pattern or no filename was given
+[[ ${#file_list[@]} -lt 1 ]] && echo "No file specified" && exit 2
+[[ -z ${#search_string} ]] && echo "No search string specified" && exit 2
+
 for file in ${file_list[@]}; do
 	# Using $(file) is possible as well and it is properly implemented but commented out in the follwing code block
 	ext=$(echo ${file##*.}) #ext=$(file -L -p -b ${file}) && ext=${ext%% *}
 	case "$ext" in
 		odt|ods|odp|sxi) #OpenDocument)
-		# An odf file (Open Document Format e.g. odt) is simply a zipped folder in which content.xml contains the actual text in xml in format
-		# The sed command removes any content in between angle brackets ('<' and '>'), it is not an ideal solution but it gets the job done
-		text=$(unzip -p ${file} content.xml | xmllint --nowarning --format - | sed 's/<[^>]*>//g' | grep --color=always ${grep_parms[@]} "${search_string}")
-		;;
-
+			# An odf file (Open Document Format e.g. odt) is simply a zipped folder in which content.xml contains the actual text in xml in format
+			# The sed command removes any content in between angle brackets ('<' and '>'), it is not an ideal solution but it gets the job done
+			text=$(unzip -p ${file} content.xml | xmllint --nowarning --format - | sed 's/<[^>]*>//g' | grep --color=always ${grep_parms[@]} "${search_string}");;
 		pdf) #PDF)
-		# pdftotext and pdfinfo is provided by poppler which should be isntalled if either cups, evince, libreoffice etc. is
-		# Search through the properties of a pdf file and the content
-		text=$(pdfinfo "${file}" | head -n6 | grep --color=always ${grep_parms[@]} "${search_string}")
-		text=${text}$(pdftotext -q "${file}" - | grep --color=always ${grep_parms[@]} "${search_string}")
-		;;
-
+			# pdftotext and pdfinfo is provided by poppler which should be isntalled if either cups, evince, libreoffice etc. is
+			# Search through the properties of a pdf file and the content
+			text=$(pdfinfo "${file}" | head -n6 | grep --color=always ${grep_parms[@]} "${search_string}")
+			text=${text}$(pdftotext -q "${file}" - | grep --color=always ${grep_parms[@]} "${search_string}");;
 		*)
-		text=$(grep --color=always ${grep_parms[@]} "${search_string}" "${file}")
-		;;
+			text=$(grep --color=always ${grep_parms[@]} "${search_string}" "${file}");;
 	esac
 	# Break if grep reports an error - This must be executed immediately after grep!
 	[[ $? -eq 2 ]] && exit 2
-	# Exit 0 if at any point some text was found
+
+	# Exit cleanly if at any point some text was found
 	[[ ! -z "${text}" ]] && exit_code=0
 
 	# Print merely the matching text in case just one file is opened otherwise print the filename for each hit
-	[[ ${#file_list[@]} -eq 1 && ! -z "${text}" ]] && echo "${text}"
-	[[ ${#file_list[@]} -gt 1 && ! -z "${text}" ]] && echo -e "\e[35m${file}\e[0m\e[94m:\e[0m${text//$'\n'/$'\n'"\e[35m${file}\e[0m\e[94m:\e[0m"}"
+	[[ ${with_filename,,} == "false" && ! -z "${text}" ]] && echo "${text}"
+	[[ ${with_filename,,} == "true" && ! -z "${text}" ]] && echo -e "\e[35m${file}\e[0m\e[94m:\e[0m${text//$'\n'/$'\n'"\e[35m${file}\e[0m\e[94m:\e[0m"}"
 done
 
 # Restore previous IFS settings
