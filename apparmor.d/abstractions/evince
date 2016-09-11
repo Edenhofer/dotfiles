@@ -1,0 +1,85 @@
+# Maintainer: Gordian Edenhofer <gordian.edenhofer@gmail.com>
+# Contributor: Kees Cook <kees@canonical.com>
+# Contributor: Jamie Strandboge <jamie@canonical.com>
+# Original URL: https://github.com/Rafiot/apparmor-profiles/blob/master/profiles/usr.bin.evince
+
+# Users of this abstraction need to #include the ubuntu-helpers abstraction
+# in the toplevel profile. Eg:
+# #include <abstractions/ubuntu-helpers>
+
+	#include <abstractions/gnome>
+	#include <abstractions/p11-kit>
+
+	@{PROC}/[0-9]*/fd/ r,
+	@{PROC}/[0-9]*/mountinfo r,
+	owner @{PROC}/[0-9]*/auxv r,
+	owner @{PROC}/[0-9]*/status r,
+
+	# Doesn't seem to be required, but noisy
+	deny /run/udev/data/** r,
+
+	/dev/.udev/{data,db}/* r,
+	/etc/udev/udev.conf r,
+	/sys/devices/**/block/**/uevent r,
+
+	# apport
+	/etc/default/apport r,
+
+	# evince specific
+	/etc/ r,
+	/etc/fstab r,
+	/etc/texmf/ r,
+	/etc/texmf/** r,
+	/etc/xpdf/* r,
+
+	/usr/bin/gs-esp ixr,
+	/usr/bin/mktexpk Cx -> sanitized_helper,
+	/usr/bin/mktextfm Cx -> sanitized_helper,
+	/usr/bin/dvipdfm Cx -> sanitized_helper,
+	/usr/bin/dvipdfmx Cx -> sanitized_helper,
+
+	# Supported archivers
+	/usr/bin/gzip ixr,
+	/usr/bin/bzip2 ixr,
+	/usr/bin/unrar* ixr,
+	/usr/bin/unzip ixr,
+	/usr/bin/7zr ixr,
+	/usr/lib/p7zip/7zr ixr,
+	/usr/bin/7za ixr,
+	/usr/lib/p7zip/7za ixr,
+	/usr/bin/zipnote ixr,
+	/usr/bin/tar ixr,
+	/usr/bin/xz ixr,
+
+	# Allow read access to anything in /usr/share, for plugins and input methods
+	/usr/local/share/** r,
+	/usr/share/** r,
+	/usr/lib/ghostscript/** mr,
+	/var/lib/ghostscript/** r,
+	/var/lib/texmf/** r,
+
+	# Allow read for all supported file formats
+	/**.[fFpP][dD][fF] r,
+	/**.[bB][mM][pP] r,
+	/**.[dD][jJ][vV][uU] r,
+	/**.[dD][vV][iI] r,
+	/**.[gG][iI][fF] r,
+	/**.[jJ][pP][gG] r,
+	/**.[jJ][pP][eE][gG] r,
+	/**.[oO][dD][pP] r,
+	/**.[pP][nN][mM] r,
+	/**.[pP][nN][gG] r,
+	/**.[pP][sS] r,
+	/**.[eE][pP][sS] r,
+	/**.[tT][iI][fF] r,
+	/**.[tT][iI][fF][fF] r,
+	/**.[xX][pP][mM] r,
+	/**.[gG][zZ] r,
+	/**.[bB][zZ]2 r,
+	/**.[cC][bB][rRzZ7] r,
+	/**.[xX][zZ] r,
+
+	# Disallow access to private folders in general, but allow access to the
+	# caches, which browsers may tell evince to open from directly
+	#include <abstractions/private-files-strict>
+	owner @{HOME}/.mozilla/**/*Cache/* r,
