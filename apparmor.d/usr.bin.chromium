@@ -1,6 +1,6 @@
 # Maintainer: Gordian Edenhofer <gordian.edenhofer@gmail.com>
 # Contributor: Jamie Strandboge <jamie@canonical.com>
-# URL: https://git.launchpad.net/apparmor-profiles/tree/ubuntu/16.10/usr.bin.chromium-browser
+# Original URL: https://git.launchpad.net/apparmor-profiles/tree/ubuntu/16.10/usr.bin.chromium-browser
 
 #include <tunables/global>
 @{sys}=/sys
@@ -9,230 +9,230 @@
 @{browser_long}=chromium
 @{browser_location}=/usr/lib/chromium
 
-/usr/lib/chromium/chromium flags=(attach_disconnected) {
-    #include <abstractions/audio>
-    #include <abstractions/cups-client>
-    #include <abstractions/dbus-session>
-    #include <abstractions/gnome>
-    #include <abstractions/ibus>
-    #include <abstractions/nameservice>
-    #include <abstractions/user-tmp>
+profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
+	#include <abstractions/audio>
+	#include <abstractions/cups-client>
+	#include <abstractions/dbus-session>
+	#include <abstractions/gnome>
+	#include <abstractions/ibus>
+	#include <abstractions/nameservice>
+	#include <abstractions/user-tmp>
 
-    # Networking
-    network inet stream,
-    network inet6 stream,
-    @{PROC}/@{pid}/net/if_inet6 r,
-    @{PROC}/@{pid}/net/ipv6_route r,
-    @{PROC}/sys/net/** r,
+	# Networking
+	network inet stream,
+	network inet6 stream,
+	@{PROC}/@{pid}/net/if_inet6 r,
+	@{PROC}/@{pid}/net/ipv6_route r,
+	@{PROC}/sys/net/** r,
 
-    # Handle /proc access
-    @{PROC}/ r,
-    @{PROC}/* r,
-    @{PROC}/@{pid}/fd/ r,
-    @{PROC}/@{pid}/stat r,
-    @{PROC}/@{pid}/**/stat r,
-    @{PROC}/@{pid}/status r,
-    @{PROC}/@{pid}/smaps r,
-    @{PROC}/@{pid}/statm r,
-    owner @{PROC}/@{pid}/auxv r,
-    owner @{PROC}/@{pid}/cmdline r,
-    owner @{PROC}/@{pid}/io r,
-    @{PROC}/sys/kernel/** r,
-    deny @{PROC}/**/oom* w,
+	# Handle /proc access
+	@{PROC}/ r,
+	@{PROC}/* r,
+	@{PROC}/@{pid}/fd/ r,
+	@{PROC}/@{pid}/stat r,
+	@{PROC}/@{pid}/**/stat r,
+	@{PROC}/@{pid}/status r,
+	@{PROC}/@{pid}/smaps r,
+	@{PROC}/@{pid}/statm r,
+	owner @{PROC}/@{pid}/auxv r,
+	owner @{PROC}/@{pid}/cmdline r,
+	owner @{PROC}/@{pid}/io r,
+	@{PROC}/sys/kernel/** r,
+	deny @{PROC}/**/oom* w,
 
-    # Handle /sys access
-    @{sys}/devices/system/cpu/** r,
-    @{sys}/devices/pci[0-9]*/** r,
-    @{sys}/devices/virtual/block/** r,
-    @{sys}/devices/virtual/tty/** r,
+	# Handle /sys access
+	@{sys}/devices/system/cpu/** r,
+	@{sys}/devices/pci[0-9]*/** r,
+	@{sys}/devices/virtual/block/** r,
+	@{sys}/devices/virtual/tty/** r,
 
-    # Handle udev
-    /run/udev/data/** r,
-    /etc/udev/udev.conf r,
+	# Handle udev
+	/run/udev/data/** r,
+	/etc/udev/udev.conf r,
 
-    # Configuration of mime and various tools
-    /etc/mime.types r,
-    /etc/mailcap r,
-    /etc/mtab r,
-    /etc/xdg/xubuntu/applications/defaults.list r,
-    owner @{HOME}/.local/share/applications/defaults.list r,
-    owner @{HOME}/.local/share/applications/mimeinfo.cache r,
-    /usr/share/zoneinfo/** r,
+	# Configuration of mime and various tools
+	/etc/mime.types r,
+	/etc/mailcap r,
+	/etc/mtab r,
+	/etc/xdg/xubuntu/applications/defaults.list r,
+	owner @{HOME}/.local/share/applications/defaults.list r,
+	owner @{HOME}/.local/share/applications/mimeinfo.cache r,
+	/usr/share/zoneinfo/** r,
 
-    # Allow mmaps all kinds of things for speed
-    /etc/passwd m,
-    /usr/share/fonts/truetype/**/*.tt[cf] m,
-    /usr/share/fonts/**/*.pfb m,
-    /usr/share/mime/mime.cache m,
-    /usr/share/icons/**/*.cache m,
-    owner /{dev,run}/shm/pulse-shm* m,
-    owner @{HOME}/.local/share/mime/mime.cache m,
-    owner /tmp/** m,
+	# Allow mmaps all kinds of things for speed
+	/etc/passwd m,
+	/usr/share/fonts/truetype/**/*.tt[cf] m,
+	/usr/share/fonts/**/*.pfb m,
+	/usr/share/mime/mime.cache m,
+	/usr/share/icons/**/*.cache m,
+	owner /{dev,run}/shm/pulse-shm* m,
+	owner @{HOME}/.local/share/mime/mime.cache m,
+	owner /tmp/** m,
 
-    # Handle /dev and /run
-    owner /{dev,run}/shm/* mrw,
-    owner /{,var/}run/shm/shmfd-* mrw,
-    /dev/null rw,
-    /dev/urandom r,
+	# Handle /dev and /run
+	owner /{dev,run}/shm/* mrw,
+	owner /{,var/}run/shm/shmfd-* mrw,
+	/dev/null rw,
+	/dev/urandom r,
 
-    # Allow read access to all libraries and its own files
-    /usr/lib/*.so* mr,
-    /usr/lib/**/*.so* mr,
-    @{browser_location}/ r,
-    @{browser_location}/** mr,
-    deny @{browser_location}/ w,
-    deny @{browser_location}/** w,
+	# Allow read access to all libraries and its own files
+	/usr/lib/*.so* mr,
+	/usr/lib/**/*.so* mr,
+	@{browser_location}/ r,
+	@{browser_location}/** mr,
+	deny @{browser_location}/ w,
+	deny @{browser_location}/** w,
 
-    # Allow ptracing ourselves
-    ptrace (trace) peer=@{profile_name},
+	# Allow ptracing ourselves
+	ptrace (trace) peer=@{profile_name},
 
-    # Allow access to documentation and some other files in /usr
-    /usr/{include,share,src}** r,
+	# Allow access to documentation and some other files in /usr
+	/usr/{include,share,src}** r,
 
-    # GSettings
-    owner /{,var/}run/user/*/dconf/ rw,
-    owner /{,var/}run/user/*/dconf/user rw,
-    owner @{HOME}/.config/dconf/user r,
+	# GSettings
+	owner /{,var/}run/user/*/dconf/ rw,
+	owner /{,var/}run/user/*/dconf/user rw,
+	owner @{HOME}/.config/dconf/user r,
 
-    # Default profile allows downloads and uploads from various xdg_dir locations
-    owner @{HOME}/ r,
-    owner @{HOME}/@{XDG_PUBLICSHARE_DIR}/ r,
-    owner @{HOME}/{@{XDG_PICTURES_DIR},@{XDG_VIDEOS_DIR},@{XDG_PUBLICSHARE_DIR},Projects}/** r,
-    owner @{HOME}/@{XDG_DOWNLOAD_DIR}/ r,
-    owner @{HOME}/@{XDG_DOWNLOAD_DIR}/** rw,
+	# Default profile allows downloads and uploads from various xdg_dir locations
+	owner @{HOME}/ r,
+	owner @{HOME}/@{XDG_PUBLICSHARE_DIR}/ r,
+	owner @{HOME}/{@{XDG_PICTURES_DIR},@{XDG_VIDEOS_DIR},@{XDG_PUBLICSHARE_DIR},Projects}/** r,
+	owner @{HOME}/@{XDG_DOWNLOAD_DIR}/ r,
+	owner @{HOME}/@{XDG_DOWNLOAD_DIR}/** rw,
 
-    # Handle executable right to programs in /usr/bin
-    /usr/bin/xdg-open ixr,
-    /usr/bin/gnome-open ixr,
-    /usr/bin/gvfs-open ixr,
-    /usr/bin/kdialog ixr,
+	# Handle executable right to programs in /usr/bin
+	/usr/bin/xdg-open ixr,
+	/usr/bin/gnome-open ixr,
+	/usr/bin/gvfs-open ixr,
+	/usr/bin/kdialog ixr,
 
-    # Make browsing directories work
-    / r,
-    /**/ r,
+	# Make browsing directories work
+	/ r,
+	/**/ r,
 
-    # Configuration directories and cache
-    owner @{HOME}/.pki/nssdb/* rwk,
-    owner @{HOME}/.cache/@{browser_long}/ rw,
-    owner @{HOME}/.cache/@{browser_long}/** rw,
-    owner @{HOME}/.cache/@{browser_long}/Cache/* mr,
-    owner @{HOME}/.config/@{browser_long}/ rw,
-    owner @{HOME}/.config/@{browser_long}/** rwk,
-    owner @{HOME}/.config/@{browser_long}/**/Cache/* mr,
-    owner @{HOME}/.config/@{browser_long}/Dictionaries/*.bdic mr,
-    owner @{HOME}/.config/@{browser_long}/**/Dictionaries/*.bdic mr,
+	# Configuration directories and cache
+	owner @{HOME}/.pki/nssdb/* rwk,
+	owner @{HOME}/.cache/@{browser_long}/ rw,
+	owner @{HOME}/.cache/@{browser_long}/** rw,
+	owner @{HOME}/.cache/@{browser_long}/Cache/* mr,
+	owner @{HOME}/.config/@{browser_long}/ rw,
+	owner @{HOME}/.config/@{browser_long}/** rwk,
+	owner @{HOME}/.config/@{browser_long}/**/Cache/* mr,
+	owner @{HOME}/.config/@{browser_long}/Dictionaries/*.bdic mr,
+	owner @{HOME}/.config/@{browser_long}/**/Dictionaries/*.bdic mr,
 
-    # Allow transitions to ourself and our sandbox
-    @{browser_location}/@{browser} ix,
-    @{browser_location}/@{browser_long} ix,
-    @{browser_location}/chrome-sandbox cx -> chrome_sandbox,
-    /usr/bin/xdg-settings Cxr -> scripts,
-    /usr/bin/lsb_release Cxr -> scripts,
-    @{browser_location}/xdg-settings Cxr -> scripts,
+	# Allow transitions to ourself and our sandbox
+	@{browser_location}/@{browser} ix,
+	@{browser_location}/@{browser_long} ix,
+	@{browser_location}/chrome-sandbox cx -> chrome_sandbox,
+	/usr/bin/xdg-settings Cxr -> scripts,
+	/usr/bin/lsb_release Cxr -> scripts,
+	@{browser_location}/xdg-settings Cxr -> scripts,
 
-    # Allow communicating with sandbox
-    unix (receive, send) peer=(label=@{browser_location}/@{browser}//@{browser}_sandbox),
+	# Allow communicating with sandbox
+	unix (receive, send) peer=(label=@{browser_location}/@{browser}//@{browser}_sandbox),
 
-    profile scripts {
-        #include <abstractions/bash>
-        #include <abstractions/gnome>
-        #include <abstractions/base>
-        #include <abstractions/python>
+	profile scripts {
+		#include <abstractions/bash>
+		#include <abstractions/gnome>
+		#include <abstractions/base>
+		#include <abstractions/python>
 
-        # Executable right to programs in /usr/bin
-        /usr/bin/bash ixr,
-        /usr/bin/getopt ixr,
-        /usr/bin/readlink ixr,
-        /usr/bin/dirname ixr,
-        /usr/bin/grep ixr,
-        /usr/bin/sed ixr,
-        /usr/bin/which ixr,
-        /usr/bin/basename ixr,
-        /usr/bin/cut ixr,
-        /usr/bin/tr ixr,
-        /usr/bin/mkdir ixr,
-        /usr/bin/mv ixr,
-        /usr/bin/touch ixr,
-        /usr/bin/dirname ixr,
-        /usr/bin/gconftool-2 ix,
-        /usr/bin/[gm]awk ixr,
-        /usr/bin/xdg-mime ixr,
-        /usr/bin/dpkg-query ixr,
+		# Executable right to programs in /usr/bin
+		/usr/bin/bash ixr,
+		/usr/bin/getopt ixr,
+		/usr/bin/readlink ixr,
+		/usr/bin/dirname ixr,
+		/usr/bin/grep ixr,
+		/usr/bin/sed ixr,
+		/usr/bin/which ixr,
+		/usr/bin/basename ixr,
+		/usr/bin/cut ixr,
+		/usr/bin/tr ixr,
+		/usr/bin/mkdir ixr,
+		/usr/bin/mv ixr,
+		/usr/bin/touch ixr,
+		/usr/bin/dirname ixr,
+		/usr/bin/gconftool-2 ix,
+		/usr/bin/[gm]awk ixr,
+		/usr/bin/xdg-mime ixr,
+		/usr/bin/dpkg-query ixr,
 
-        # Read access for various programs
-        /usr/bin/ r,
-        /usr/bin/python* r,
-        /usr/bin/lsb_release r,
-        /usr/bin/xdg-settings r,
-        /usr/include/python2.[4567]/pyconfig.h r,
-        /usr/local/lib/python*/dist-packages/ r,
-        @{browser_location}/xdg-settings r,
+		# Read access for various programs
+		/usr/bin/ r,
+		/usr/bin/python* r,
+		/usr/bin/lsb_release r,
+		/usr/bin/xdg-settings r,
+		/usr/include/python2.[4567]/pyconfig.h r,
+		/usr/local/lib/python*/dist-packages/ r,
+		@{browser_location}/xdg-settings r,
 
-        # Access to configuration files and caches
-        /etc/ld.so.cache r,
-        /etc/lsb-release r,
-        /etc/debian_version r,
-        /var/lib/dpkg/** r,
-        /usr/share/applications/*.desktop r,
-        owner @{HOME}/.local/share/applications/ w,
-        owner @{HOME}/.local/share/applications/mimeapps.list* rw,
+		# Access to configuration files and caches
+		/etc/ld.so.cache r,
+		/etc/lsb-release r,
+		/etc/debian_version r,
+		/var/lib/dpkg/** r,
+		/usr/share/applications/*.desktop r,
+		owner @{HOME}/.local/share/applications/ w,
+		owner @{HOME}/.local/share/applications/mimeapps.list* rw,
 
-        # Terminal interaction
-        /dev/tty rw,
-    }
+		# Terminal interaction
+		/dev/tty rw,
+	}
 
-    profile chrome_sandbox {
-        # Be careful since it is setuid root and don't use an abstraction
-        /etc/ld.so.cache r,
-        /usr/share/zoneinfo/** r,
-        @{PROC}/* r,
-        @{PROC}/**/maps r,
-        @{sys}/devices/system/cpu/** r,
-        /usr/lib/*.so* mr,
-        /usr/lib/**/*.so* mr,
-        @{browser_location}/** mr,
+	profile chrome_sandbox {
+		# Be careful since it is setuid root and don't use an abstraction
+		/etc/ld.so.cache r,
+		/usr/share/zoneinfo/** r,
+		@{PROC}/* r,
+		@{PROC}/**/maps r,
+		@{sys}/devices/system/cpu/** r,
+		/usr/lib/*.so* mr,
+		/usr/lib/**/*.so* mr,
+		@{browser_location}/** mr,
 
-        # Required for dropping into PID namespace. Keep in mind that until the
-        # process drops this capability it can escape confinement, but once it
-        # drops CAP_SYS_ADMIN we are ok.
-        capability sys_admin,
+		# Required for dropping into PID namespace. Keep in mind that until the
+		# process drops this capability it can escape confinement, but once it
+		# drops CAP_SYS_ADMIN we are ok.
+		capability sys_admin,
 
-        # All of these are for sanely dropping from root and chrooting
-        capability chown,
-        capability fsetid,
-        capability setgid,
-        capability setuid,
-        capability dac_override,
-        capability sys_chroot,
-        capability sys_ptrace,
-        ptrace (read, readby),
+		# All of these are for sanely dropping from root and chrooting
+		capability chown,
+		capability fsetid,
+		capability setgid,
+		capability setuid,
+		capability dac_override,
+		capability sys_chroot,
+		capability sys_ptrace,
+		ptrace (read, readby),
 
-        signal (receive) peer=unconfined,
-        signal peer=@{profile_name},
-        signal (receive, send) set=("exists"),
-        signal (receive) peer=@{browser_location}/@{browser},
+		signal (receive) peer=unconfined,
+		signal peer=@{profile_name},
+		signal (receive, send) set=("exists"),
+		signal (receive) peer=@{browser_location}/@{browser},
 
-        unix (receive, send) peer=(label=@{browser_location}/@{browser}),
-        unix (create),
-        unix peer=(label=@{profile_name}),
-        unix (getattr, getopt, setopt, shutdown) addr=none,
+		unix (receive, send) peer=(label=@{browser_location}/@{browser}),
+		unix (create),
+		unix peer=(label=@{profile_name}),
+		unix (getattr, getopt, setopt, shutdown) addr=none,
 
-        @{PROC}/ r,
-        @{PROC}/@{pid}/ r,
-        @{PROC}/@{pid}/fd/ r,
-        @{PROC}/@{pid}/status r,
-        @{PROC}/@{pid}/**/stat r,
-        deny @{PROC}/**/oom* w,
+		@{PROC}/ r,
+		@{PROC}/@{pid}/ r,
+		@{PROC}/@{pid}/fd/ r,
+		@{PROC}/@{pid}/status r,
+		@{PROC}/@{pid}/**/stat r,
+		deny @{PROC}/**/oom* w,
 
-        @{browser_location}/@{browser} Px,
-        @{browser_location}/nacl_helper ix,
+		@{browser_location}/@{browser} Px,
+		@{browser_location}/nacl_helper ix,
 
-        # Access to /dev
-        /dev/shm/ r,
-        /dev/shm/** mrwk,
-        /dev/null rw,
-        /dev/urandom r,
+		# Access to /dev
+		/dev/shm/ r,
+		/dev/shm/** mrwk,
+		/dev/null rw,
+		/dev/urandom r,
 
-        owner /tmp/** rw,
-    }
+		owner /tmp/** rw,
+	}
 }
