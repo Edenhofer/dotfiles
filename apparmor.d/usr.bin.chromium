@@ -116,9 +116,11 @@ profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
 	owner @{HOME}/.cache/@{browser_long}/ rw,
 	owner @{HOME}/.cache/@{browser_long}/** rw,
 	owner @{HOME}/.cache/@{browser_long}/Cache/* mr,
+	owner @{HOME}/.config/gtk-[0-9]*/* r,
 	owner @{HOME}/.config/@{browser_long}/ rw,
 	owner @{HOME}/.config/@{browser_long}/** rwk,
 	owner @{HOME}/.config/@{browser_long}/**/Cache/* mr,
+	owner @{HOME}/.config/@{browser_long}/PepperFlash/** mr,
 	owner @{HOME}/.config/@{browser_long}/Dictionaries/*.bdic mr,
 	owner @{HOME}/.config/@{browser_long}/**/Dictionaries/*.bdic mr,
 
