@@ -1,0 +1,193 @@
+# Maintainer: Gordian Edenhofer <gordian.edenhofer@gmail.com>
+# Contributor: Bryan Quigley <bryan.quigley@canonical.com>
+# Original URL: https://github.com/LibreOffice/core/tree/master/sysui/desktop/apparmor
+
+#include <tunables/global>
+@{sys}=/sys
+
+# Generic
+@{libreoffice_ext}=[tT][xX][tT]
+@{libreoffice_ext}+={,f,F}[oO][dDtT][tTsSpPbBgGfF]
+@{libreoffice_ext}+=[xX][mMsS][lL]
+@{libreoffice_ext}+=[pP][dD][fF]
+@{libreoffice_ext}+=[uU][oO][fFtTsSpP]
+@{libreoffice_ext}+={,x,X}[hH][tT][mM]{,l,L}
+# Images
+@{libreoffice_ext}+=[jJ][pP][gG]
+@{libreoffice_ext}+=[jJ][pP][eE][gG]
+@{libreoffice_ext}+=[pP][nN][gG]
+@{libreoffice_ext}+=[sS][vV][gG]
+@{libreoffice_ext}+=[sS][vV][gG][zZ]99251
+@{libreoffice_ext}+=[tT][iI][fF]
+@{libreoffice_ext}+=[tT][iI][fF][fF]
+# Writer
+@{libreoffice_ext}+=[dD][oO][cCtT]{,x,X}
+@{libreoffice_ext}+=[rR][tT][fF]
+# Calc
+@{libreoffice_ext}+=[xX][lL][sSwWtT]{,x,X}
+@{libreoffice_ext}+=[dD][iIbB][fF]
+@{libreoffice_ext}+=[cCtT][sS][vV]
+@{libreoffice_ext}+=[sS][lL][kK]
+# Impress/Draw
+@{libreoffice_ext}+=[pP][pP][tTsS]{,x,X}
+@{libreoffice_ext}+=[pP][oO][tT]{,m,M}
+@{libreoffice_ext}+=[sS][wW][fF]
+@{libreoffice_ext}+=[pP][sS][dD]
+# Math
+@{libreoffice_ext}+=[mM][mM][lL]
+# Library directories
+@{libo_user_dirs}=@{HOME} /mnt /media
+
+# Advanced features such as embedded plugins, LibreOffice SDK and other
+# development tasks are disabled in favor of increased security
+# Defines all common supported file formats (NOT obscure ones)
+profile libreoffice-soffice /usr/lib/libreoffice/program/soffice.bin {
+	#include <abstractions/private-files-strict>
+
+	# Defines sanitized_helper
+	#include <abstractions/ubuntu-helpers>
+
+	#include <abstractions/audio>
+	#include <abstractions/bash>
+	#include <abstractions/cups-client>
+	#include <abstractions/dbus>
+	#include <abstractions/dbus-session>
+	#include <abstractions/dbus-accessibility>
+	#include <abstractions/ibus>
+	#include <abstractions/nameservice>
+	#include <abstractions/gnome>
+	#include <abstractions/python>
+	#include <abstractions/p11-kit>
+
+	# Handle /sys access
+	@{sys}/devices/pci[0-9]*/** r,
+
+	# Handle udev
+	/run/udev/data/** r,
+	/etc/udev/udev.conf r,
+
+	# List directories for file browser
+	/ r,
+	/**/ r,
+
+	owner @{libo_user_dirs}/**/ rw,
+	owner @{libo_user_dirs}/**~lock.* rw,
+	owner @{libo_user_dirs}/**.@{libreoffice_ext} rwk,
+
+	# Settings
+	/etc/libreoffice/ r,
+	/etc/libreoffice/** r,
+
+	/etc/cups/ppd/*.ppd r,
+	/proc/*/status r,
+
+	owner @{HOME}/.config/libreoffice{,dev}/** rwk,
+	owner @{HOME}/.cache/fontconfig/** rw,
+	owner @{HOME}/.config/gtk-[0-9]*/bookmarks r,
+	owner @{HOME}/.recently-used rwk,
+
+	owner /{,var/}run/user/*/dconf/user rw,
+	owner @{HOME}/.config/dconf/user r,
+
+	# Allow schema to be read
+	/usr/share/glib-*/schemas/ r,
+	/usr/share/glib-*/schemas/** r,
+
+	# Allow bluetooth send to
+	network bluetooth,
+
+	/usr/bin/sh rmix,
+	/usr/bin/bash rmix,
+	/usr/bin/bluetooth-sendto rmPUx,
+	/usr/bin/lpr rmPUx,
+	/usr/bin/paperconf rmix,
+
+	/dev/tty rw,
+
+	/usr/lib{,32,64}/@{multiarch}/gstreamer*/gstreamer-*/gst-plugin-scanner rmPUx,
+	owner @{HOME}/.cache/gstreamer-*/** rw,
+	unix peer=(addr=@/tmp/.ICE-unix/* label=unconfined),
+
+	/usr/lib{,32,64}/jvm/ r,
+	/usr/lib{,32,64}/jvm/** r,
+	/usr/lib/xorg/** rm,
+	/usr/lib/libreoffice/** r,
+	/usr/lib/libreoffice/**.so m,
+	/usr/lib/libreoffice/program/soffice.bin mix,
+	/usr/lib/libreoffice/program/xpdfimport px,
+	/usr/lib/libreoffice/program/senddoc px,
+	/usr/bin/xdg-open rPUx,
+
+	/usr/share/java/**.jar r,
+	/usr/share/hunspell/ r,
+	/usr/share/hunspell/** r,
+	/usr/share/hyphen/ r,
+	/usr/share/hyphen/** r,
+	/usr/share/mythes/ r,
+	/usr/share/mythes/** r,
+	/usr/share/liblangtag/ r,
+	/usr/share/liblangtag/** r,
+	/usr/share/libreoffice/ r,
+	/usr/share/libreoffice/** r,
+	/usr/share/yelp-xsl/xslt/mallard/** r,
+	/usr/share/libexttextcat/* r,
+	/usr/share/icu/** r,
+	/usr/share/locale-bundle/* r,
+	/usr/share/gtk-[0-9]*/* r,
+
+	/var/spool/libreoffice/ r,
+	/var/spool/libreoffice/** rw,
+	/var/cache/fontconfig/ rw,
+
+	# Likely moving to abstractions in the future
+	owner @{HOME}/.icons/*/cursors/* r,
+	/usr/share/*-fonts/conf.avail/*.conf r,
+	/usr/share/fonts-config/conf.avail/*.conf r,
+}
+
+profile libreoffice-oopslash /usr/lib/libreoffice/program/senddoc {
+	#include <abstractions/base>
+
+	/etc/libreoffice/ r,
+	/etc/libreoffice/** r,
+	/etc/passwd r,
+	/etc/nsswitch.conf r,
+	/run/nscd/passwd r,
+	/usr/lib{,32,64}/ure/bin/javaldx rmpux,
+	/usr/share/libreoffice/program/* r,
+	/usr/lib/libreoffice/program/** 			r,
+	/usr/lib/libreoffice/program/soffice.bin rmpx,
+	/usr/lib/libreoffice/program/javaldx rmpux,
+	owner @{HOME}/.Xauthority r,
+	owner @{HOME}/.config/libreoffice{,dev}/?/user/uno_packages/cache/log.txt rw,
+	unix peer=(addr=@/tmp/.ICE-unix/* label=unconfined),
+	unix peer=(addr=@/tmp/.X11-unix/* label=unconfined),
+}
+
+profile libreoffice-senddoc /usr/lib/libreoffice/program/senddoc {
+	#include <abstractions/base>
+
+	owner /tmp/lu** rw,
+	/usr/bin/sh rmix,
+	/usr/bin/bash rmix,
+	/usr/bin/sed rmix,
+	/usr/bin/dirname rmix,
+	/usr/bin/basename rmix,
+	/usr/bin/grep rmix,
+	/usr/bin/uname rmix,
+	/usr/bin/xdg-open Cxr -> sanitized_helper,
+	/dev/null rw,
+	/usr/lib/libreoffice/program/uri-encode rmpux,
+	/usr/share/libreoffice/share/config/* r,
+	owner @{HOME}/.config/libreoffice{,dev}/?/user/uno_packages/cache/log.txt rw,
+}
+
+profile libreoffice-xpdfimport /usr/lib/libreoffice/program/xpdfimport {
+	#include <abstractions/base>
+
+	owner /tmp/* r,
+	owner /tmp/lu** rw,
+	/usr/share/poppler/** r,
+	/usr/share/libreoffice/share/config/* r,
+	owner @{HOME}/.config/libreoffice{,dev}/?/user/uno_packages/cache/log.txt rw,
+}
