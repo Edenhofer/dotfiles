@@ -135,6 +135,9 @@ profile google-chrome /opt/google/chrome/chrome flags=(attach_disconnected) {
 	# Allow communicating with sandbox
 	unix (receive, send) peer=(label=@{browser_location}/@{browser}//@{browser}_sandbox),
 
+	# Terminal interaction
+	/dev/tty rw,
+
 	profile scripts {
 		#include <abstractions/bash>
 		#include <abstractions/gnome>
