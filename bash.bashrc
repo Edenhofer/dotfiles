@@ -195,7 +195,11 @@ alias fl='find . -type l -exec ls --color=auto -lh {} \;'
 
 # Metasploit Framework
 # Quiet disables ASCII banner and -x ... auto-connects to msf postgresql database owned by ${USER}
-which msfconsole &>/dev/null && alias msfconsole="msfconsole --quiet -x \"db_connect ${USER}@msf\""
+if which msfconsole systemctl &>/dev/null; then
+	alias msfconsole="start postgresql && msfconsole --quiet -x \"db_connect ${USER}@msf\""
+elif which msfconsole &>/dev/null; then
+	alias msfconsole="msfconsole --quiet -x \"db_connect ${USER}@msf\""
+fi
 
 # Enable fuck support if present
 which thefuck &>/dev/null && eval $(thefuck --alias)
