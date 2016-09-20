@@ -1,0 +1,222 @@
+#!/usr/bin/bash
+#
+# Bash playground
+#
+
+# Define program name and version
+myname=$(basename "$0")
+myversion=1.0.0
+
+# Help function, no arguments required
+function usage() {
+	cat <<-EOF
+	$myname $myversion
+	Invoke ffmpeg and youtube-dl options through a text configuration file.
+
+	Usage: $myname [options] <filename(s)>
+	    -h, --help         Print this help message
+	    -d, --download     Download videos through youtube-dl
+	    -f, --force        Overwrite already rendered files
+	    -r, --remove       Remove original video
+	    -q, --quiet        Only show fatal errors
+	    -v, --verbose      Increase verbosity
+	    --download-only    Only download files, do nothing else
+
+	Examples:   # $myname -fq video_file_to_parse.txt
+
+	Copyright (c) Gordian Edenhofer <gordian.edenhofer@gmail.com>
+	The script requires bash>=4.2, youtube-dl, ffmpeg, sed and getopt.
+	EOF
+}
+
+# Evaluate arguments
+[[ $# -lt 1 ]] && usage && exit 1
+PARAMS=$(getopt -o fdqvVh --long force,download,download-only,quiet,verbose,version,help -n "$myname" -- "$@")
+[[ $? -ne 0 ]] && echo "Try '$myname --help' for more information." && exit 3
+eval set -- "$PARAMS"
+VERBOSITY=24
+NO_SKIP=false
+NO_BACKUP=false
+DOWNLOAD_ONLY=false
+DOWNLOAD=false
+while true ; do
+	case "$1" in
+		-h|--help)
+			usage
+			exit 0;;
+
+		-V|--version)
+			usage
+			exit 0;;
+
+		-d|--download)
+			DOWNLOAD=true;;
+
+		-f|--force)
+			NO_SKIP=true;;
+
+		-r|--remove)
+			NO_BACKUP=true;;
+
+		-q|--quiet)
+			VERBOSITY=8;;
+
+		-v|--verbose)
+			VERBOSITY=$((VERBOSITY+8));;
+
+		--download-only)
+			DOWNLOAD_ONLY=true;;
+
+		--)
+			shift
+			break;;
+
+		*)
+			usage
+			exit 1;;
+	esac
+	shift
+done
+[[ -z "$*" ]] && usage && exit 1
+input_files=($*)
+
+# Colored output
+bold=$(tput bold)
+normal=$(tput sgr0)
+
+#
+# Invoke ffmpeg options through a text configuriton file
+#
+# Input file format:
+# 1: URL without any spaces! (can be compensated with args)
+# 2+: additional argumetns in '[]' not containing ], [, = themselves (optional)
+# Lines starting with a '#' will be ignored
+#
+previous_IFS=${IFS}
+IFS=$'\n'
+# Reading the file with a while loop is not possible since it would occupy stdin
+for line in $(cat ${input_files[@]} | grep -v "^#"); do
+	IFS=${previous_IFS}
+
+	# Skip if the line contains no characters
+	[[ -z "${line}" ]] && continue
+
+	# Split line into options and URL/object
+	line_options=$(echo ${line} | sed 's/[^ ]\+ //')
+	object=$(echo ${line} | sed 's/\[[^]].*//g')
+
+	# Reset variables for next iteration
+	ffmpeg_args="-loglevel ${VERBOSITY} -map_metadata 0 -c:a copy"
+	ffmpeg_vfilters=""
+	input_video=""
+	output_video=""
+	orig_file=""
+
+	# Loop over each parameter
+	previous_IFS=$IFS
+	IFS=$']'
+	for param in ${line_options}; do
+		IFS=${previous_IFS}
+
+		# Extract option and its value
+		option="$(echo ${param} | sed -n 's/^.*\[\([^=]*\).*/\1/p')"
+		option_value="$(echo ${param} | sed -n 's/^.*=\(\)/\1/p')"
+		case ${option} in
+			"FILE")
+				# Skip if no argument was specified
+				[[ -z "${option_value}" ]] && >&2 echo -e "${bold}ERROR:${normal} '${option}' requires an argument" && continue
+
+				# The final filename will bare the name of the input_video
+				input_video="${option_value}";;
+
+			"CROP_TO_ASPECT_RATIO")
+				# Skip if no valid orientation was specified
+				[[ -z "${option_value}" ]] && >&2 echo -e "${bold}ERROR:${normal} '${option}' requires an argument" && continue
+
+				# Assemble ffmpeg option
+				case ${option_value} in
+					"16:9")
+						ffmpeg_vfilters="${ffmpeg_vfilters},crop=in_w:in_h*9/16:0:in_h*7/32";;
+					"9:16")
+						ffmpeg_vfilters="${ffmpeg_vfilters},crop=in_w*9/16:in_h:in_w*7/32:0";;
+					"4:3")
+						ffmpeg_vfilters="${ffmpeg_vfilters},crop=in_w:in_h*3/4:0:in_h/8";;
+					"3:4")
+						ffmpeg_vfilters="${ffmpeg_vfilters},crop=in_w*3/4:in_h:in_w/8:0";;
+					*)
+						>&2 echo -e "${bold}ERROR:${normal} invalid option '${option_value}' for '${object}'";;
+				esac;;
+
+			"ROTATE")
+				# Behave differently if no option was specified
+				if [[ -z "${option_value}" ]]; then
+					ffmpeg_vfilters="${ffmpeg_vfilters},transpose"
+				else
+					ffmpeg_vfilters="${ffmpeg_vfilters},transpose=${option_value}"
+				fi;;
+
+			"TRIM")
+				# Skip if no valid trim option was specified
+				[[ -z "${option_value}" ]] && >&2 echo -e "${bold}ERROR:${normal} '${option}' requires an argument" && continue
+
+				ffmpeg_vfilters="${ffmpeg_vfilters},trim=${option_value}";;
+
+			*)
+				;;
+		esac
+	done
+
+	# Only download files, skip the rest
+	if [[ "${DOWNLOAD_ONLY,,}" == true || "${DOWNLOAD,,}" == true ]]; then
+		echo -e "${bold}-->${normal} Running 'youtube-dl \"${object}\"'..."
+		# youtube-dl -f bestvideo+bestaudio/best
+		if [[ ! -z ${input_video} ]]; then
+			youtube-dl "${object}" -o "${input_video}"
+		else
+			youtube-dl "${object}"
+		fi
+		[[ "${DOWNLOAD_ONLY,,}" == true ]] && continue
+	fi
+
+	# Skip this line if no ffmpeg_vfilters was specified
+	[[ -z "${ffmpeg_vfilters}" ]] && echo -e "${bold}NOTE:${normal} no filter specified; SKIPPING..." && continue
+
+	# Skip already rendered files by default
+	[[ "${NO_SKIP,,}" == true ]] && ffmpeg_args="${ffmpeg_args} -y"
+
+	# Evaluate the input_video and preserve the original video
+	if [[ -z "${input_video}" ]]; then
+		input_video=$(youtube-dl -e --get-id "${object}" | tr '\n' '-')
+		input_video="${input_video::-1}.mp4"
+	fi
+	if [[ -f ".orig_${input_video}" ]]; then
+		[[ -f "${input_video}" && "${NO_SKIP,,}" == false ]] && echo -e "${bold}NOTE:${normal} already rendered once; SKIPPING..." && continue
+		[[ -f "${input_video}" && "${NO_SKIP,,}" == true ]] && echo -e "${bold}NOTE:${normal} already rendered once; OVERWRITING..."
+		output_video="${input_video}"
+		input_video=".orig_${input_video}"
+	elif [[ -f "${input_video}" && (-z "${output_video}" || "${output_video}" == "${input_video}") ]]; then
+		orig_file="${input_video}"
+		mv "${input_video}" ".orig_${input_video}"
+		output_video="${input_video}"
+		input_video=".orig_${input_video}"
+	else
+		>&2 echo -e "${bold}ERROR:${normal} '${input_video}' is not a valid file; SKIPPING..." && continue
+	fi
+
+	# Clean up ffmpeg_vfilters
+	[[ "${ffmpeg_vfilters}" =~ ^"," ]] && ffmpeg_vfilters=${ffmpeg_vfilters:1}
+
+	# Invoke ffmpeg with the specified options
+	echo -e "${bold}-->${normal} Processing '${output_video}' using '${ffmpeg_vfilters}'..."
+	ffmpeg -i "${input_video}" -filter:v ${ffmpeg_vfilters} ${ffmpeg_args} "${output_video}"
+
+	# Move orig file back in place if things go south
+	if [[ $? -ne 0 ]]; then
+		>&2 echo -e "${bold}ERROR:${normal} '${input_video}' using '${ffmpeg_vfilters}' ${bold}FAILED${normal}"
+		[[ "${orig_file}" ]] && mv "${input_video}" "${orig_file}"
+	elif [[ "${NO_BACKUP,,}" == true ]]; then
+		rm "${input_video}"
+	fi
+done
+
+exit 0
