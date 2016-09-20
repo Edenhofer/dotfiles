@@ -10,9 +10,10 @@ All files should be easily readable and self-explaining. However I would still l
 * vim is the default editor
 * aliases are only created if necessary: root won't have sudo-shortcuts, systemd aliases are only created if systemd is installed etc.
 * couple of pacman aliases (Arch Linux only)
-* some medium-sized functions, e.g.
+* some medium-sized scripts, e.g.
 	* anygrep: grep through more than just plain text (pdf, odf and more)
 	* extract: decompress any archive
+	* videocmd: invoke ffmpeg and youtube-dl options through a text configuration file
 
 ### Inputrc
 * case insensitive tab-completion
@@ -29,8 +30,12 @@ All files should be easily readable and self-explaining. However I would still l
 	* one (defautl): classical one window layout
 	* split: splitted layout
 
+### AppArmor
+* Sane profiles for various endangered programs
+* Optimized for Arch Linux
+
 ## Setup
-You may use those cunfiguration files solely for inspiration or if you really like them you might even build on top of them. To move the the various files in place, I would recommend simply linking them instead of actually moving the file. Remember to not move the linked files afterwards without changing the links accordingly.
+You may use those configuration files solely for inspiration or if you really like them you might even build on top of them. To move the the various files in place, I would recommend simply linking them instead of actually moving the file. Remember to not move the linked files afterwards without changing the links accordingly.
 
 * Use the files as system wide defaults
 ```bash
@@ -52,6 +57,10 @@ ln -s $(pwd)/screenrc /etc/screenrc
 
 # Link color schemes for listing files
 ln -s $(pwd)/dircolors /etc/dircolors
+
+# Link AppArmor profiles with HARD links (dirs must be on the same fs!!!)
+find apparmor.d -maxdepth 1 -type f -exec ln $(pwd)/{} /etc/apparmor.d/ \;
+find apparmor.d/abstractions -maxdepth 1 -type f -exec ln $(pwd)/{} /etc/apparmor.d/abstractions/ \;
 ```
 
 * Use the files for a single user only
