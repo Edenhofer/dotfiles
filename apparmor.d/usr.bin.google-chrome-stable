@@ -94,11 +94,9 @@ profile google-chrome /opt/google/chrome/chrome flags=(attach_disconnected) {
 	owner /{,var/}run/user/*/dconf/user rw,
 	owner @{HOME}/.config/dconf/user r,
 
-	# Default profile allows downloads and uploads from various xdg_dir locations
+	# Allows uploads from all dirs not starting wit a '.' and downloads to ~/Downloads
 	owner @{HOME}/ r,
-	owner @{HOME}/@{XDG_PUBLICSHARE_DIR}/ r,
-	owner @{HOME}/{@{XDG_PICTURES_DIR},@{XDG_VIDEOS_DIR},@{XDG_PUBLICSHARE_DIR},Projects}/** r,
-	owner @{HOME}/@{XDG_DOWNLOAD_DIR}/ r,
+	owner @{HOME}/[^.]** r,
 	owner @{HOME}/@{XDG_DOWNLOAD_DIR}/** rw,
 
 	# Handle executable right to programs in /usr/bin
