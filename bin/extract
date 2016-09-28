@@ -30,22 +30,26 @@ fi
 
 # Define DESTDIR and default to the current location
 DESTDIR="."
-if [[ ! -d "$2" ]]; then
-	ask "Destination folder doesn't exist or is not a directory. Create? (y/n): "
-	read -n1 user_input
-	echo
-	if [[ "${user_input}" =~ (Y|y) ]]; then
-		mkdir -p "$2"
-		if [[ $? -eq 0 ]]; then
-			DESTDIR="$2"
-		else
-			# Write permission error
-			exit 6
-		fi
+if [[ -n "$2" ]]; then
+	if [[ -d "$2" ]]; then
+		DESTDIR="$2"
 	else
-		# Invalid answer
-		msg "Closing."
-		exit 3
+		ask "Destination folder '$2' doesn't exist or is not a directory. Create it? (y/n): "
+		read -n1 user_input
+		echo
+		if [[ "${user_input}" =~ (Y|y) ]]; then
+			mkdir -p "$2"
+			if [[ $? -eq 0 ]]; then
+				DESTDIR="$2"
+			else
+				# Write permission error
+				exit 6
+			fi
+		else
+			# Invalid answer
+			msg "Closing."
+			exit 3
+		fi
 	fi
 else
 	DESTDIR="$2"
