@@ -90,16 +90,14 @@ normal=$(tput sgr0)
 # Input file format:
 # 1: URL without any spaces! (can be compensated with args)
 # 2+: additional argumetns in '[]' not containing ], [, = themselves (optional)
-# Lines starting with a '#' will be ignored
+# Empty lines and lines starting with a '#' will be ignored
 #
-previous_IFS=${IFS}
-IFS=$'\n'
 # Reading the file with a while loop is not possible since it would occupy stdin
-for line in $(cat ${input_files[@]} | grep -v "^#"); do
-	IFS=${previous_IFS}
-
-	# Skip if the line contains no characters
-	[[ -z "${line}" ]] && continue
+mapfile -t lines <${input_files[@]};
+for line in "${lines[@]}"; do
+	# Skip if the line contains only whitespaces or starts with a '#'
+	[[ "${line// /}" =~ ^"#" ]] && continue
+	[[ -z "${line// /}" ]] && continue
 
 	# Split line into options and URL/object
 	line_options=$(echo ${line} | sed 's/[^ ]\+ //')
