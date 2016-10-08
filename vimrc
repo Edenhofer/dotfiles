@@ -12,6 +12,7 @@ set ignorecase      " Ignore case in search patterns.
 set smartcase       " Override the 'ignorecase' option if the search pattern
 au FileType gitcommit set tw=72 " automatically wrap long commit messages
 au FileType gitcommit setlocal spell
+set diffopt+=iwhite " Ignore white space
 "set autoindent      " Copy indent from current line when starting a new line
 "set textwidth=79     " Maximum width of text that is being inserted.
 "set formatoptions=c,q,r,t " How automatic formatting is to be done.
