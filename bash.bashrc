@@ -209,7 +209,7 @@ which R &>/dev/null && alias R="R --quiet"
 
 # Sort By Size
 sbs() {
-	du -h --max-depth=1 ${*:-"."} | sort -h
+	du -h --max-depth=1 "${*:-"."}" | sort -h
 }
 
 # Create directory and cd into it
