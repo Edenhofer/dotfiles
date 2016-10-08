@@ -111,6 +111,7 @@ profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
 
 	# Configuration directories and cache
 	owner @{HOME}/.pki/nssdb/* rwk,
+	owner @{HOME}/.cache/thumbnails/** r,
 	owner @{HOME}/.cache/@{browser_long}/ rw,
 	owner @{HOME}/.cache/@{browser_long}/** rw,
 	owner @{HOME}/.cache/@{browser_long}/Cache/* mr,
@@ -156,6 +157,8 @@ profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
 		/usr/bin/mkdir ixr,
 		/usr/bin/mv ixr,
 		/usr/bin/touch ixr,
+		/usr/bin/head ixr,
+		/usr/bin/tail ixr,
 		/usr/bin/dirname ixr,
 		/usr/bin/gconftool-2 ix,
 		/usr/bin/[gm]awk ixr,
