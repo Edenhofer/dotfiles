@@ -47,6 +47,11 @@ for option in "$@"; do
 			help
 			exit 0;;
 		-*)
+			# Intercept with-filename invocation
+			if [[ "${option}" == *"H"* ]]; then
+				option="$(echo "${option}" | tr -d 'H')"
+				with_filename=true
+			fi
 			# Match any parameter starting with an '-'
 			grep_parms+=("${option}");;
 		*)
