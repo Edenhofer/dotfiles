@@ -21,6 +21,9 @@ profile insync /usr/lib/insync/insync {
 	#include <abstractions/ubuntu-console-email>
 	#include <abstractions/ubuntu-media-players>
 
+	# Required by fontconfig
+	capability mknod,
+
 	# Networking
 	network inet stream,
 	network inet6 stream,
@@ -43,11 +46,13 @@ profile insync /usr/lib/insync/insync {
 	@{PROC}/sys/fs/inotify/** r,
 	@{PROC}/sys/kernel/** r,
 
-	# Configuration of mime and various tools
+	# Configuration directories and cache
 	/etc/mime.types r,
 	/etc/mailcap r,
 	/etc/mtab r,
 	/etc/xdg/xubuntu/applications/defaults.list r,
+	/var/cache/fontconfig/* rw,
+	owner @{HOME}/.cache/fontconfig/* rw,
 	owner @{HOME}/.local/share/applications/defaults.list r,
 	owner @{HOME}/.local/share/applications/mimeinfo.cache r,
 
