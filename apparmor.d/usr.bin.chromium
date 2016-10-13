@@ -18,6 +18,9 @@ profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
 	#include <abstractions/nameservice>
 	#include <abstractions/user-tmp>
 
+	# Required by fontconfig
+	capability mknod,
+
 	# Networking
 	network inet stream,
 	network inet6 stream,
@@ -32,6 +35,7 @@ profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
 	@{PROC}/@{pid}/stat r,
 	@{PROC}/@{pid}/**/stat r,
 	@{PROC}/@{pid}/status r,
+	@{PROC}/@{pid}/**/status r,
 	@{PROC}/@{pid}/smaps r,
 	@{PROC}/@{pid}/statm r,
 	owner @{PROC}/@{pid}/auxv r,
@@ -45,6 +49,7 @@ profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
 	@{sys}/devices/pci[0-9]*/** r,
 	@{sys}/devices/virtual/block/** r,
 	@{sys}/devices/virtual/tty/** r,
+	@{sys}/devices/**/uevent r,
 
 	# Handle udev
 	/run/udev/data/** r,
@@ -110,7 +115,9 @@ profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
 	/**/ r,
 
 	# Configuration directories and cache
+	/var/cache/fontconfig/* rw,
 	owner @{HOME}/.pki/nssdb/* rwk,
+	owner @{HOME}/.cache/fontconfig/* rw,
 	owner @{HOME}/.cache/thumbnails/** r,
 	owner @{HOME}/.cache/@{browser_long}/ rw,
 	owner @{HOME}/.cache/@{browser_long}/** rw,
