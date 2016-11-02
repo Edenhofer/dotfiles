@@ -104,7 +104,7 @@ alias grep='grep --color=auto'
 # Aliasing ls commands
 alias l='ls -hF --color=auto'
 alias lr='ls -R'  # recursive ls
-alias ll='ls -alhF'
+alias ll='ls -alhFv'
 alias lh='ls -ahrlt'
 alias la='ls -ah'
 
