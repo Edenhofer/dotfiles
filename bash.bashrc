@@ -180,6 +180,9 @@ if which pacman &>/dev/null; then
 	fi
 fi
 
+# Arch Build System (abs) sudo alias
+which abs &>/dev/null && [[ $UID -ne 0 ]] && alias abs='sudo abs'
+
 # Support netctl package
 if which netctl &>/dev/null; then
 	if [[ $UID -ne 0 ]]; then
