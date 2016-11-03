@@ -17,7 +17,12 @@ function help() {
 	    --help              Display this help message and exit
 	    *, *                Any valid grep parameter; Use \`grep --help\`
 
-	Examples:   # $myname -iHn5 whatis Document.odt
+	$myname honors the GREPBIN environment variable, which defines the binary to
+	use for grepping. For example a useful alternative might be 'pcregrep'.
+
+	Examples:   # $myname -in5 whatis Document.odt
+	    # GREPBIN=pcregrep $myname -iMH "coherent light" physics.pdf
+	    # find . -type f -exec grep -iH "which document contains" {} \;
 
 	Copyright (c) Gordian Edenhofer <gordian.edenhofer@gmail.com>
 	The script requires bash>=4.2, zip, sed, libxml2 and poppler.
@@ -89,6 +94,8 @@ with_filename="${with_filename:-"false"}"
 with_filename_without_match="${with_filename_without_match:-"false"}"
 # Print normal output by default
 with_text="${with_text:-"true"}"
+# Use `grep` as default grepping binary
+GREPBIN="${GREPBIN:-"grep"}"
 
 # Stupid debug code
 if (( DEBUG )); then
@@ -113,14 +120,14 @@ for file in ${file_list[@]}; do
 		odt|ods|odp|sxi) #OpenDocument)
 			# An odf file (Open Document Format e.g. odt) is simply a zipped folder in which content.xml contains the actual text in xml in format
 			# The sed command removes any content in between angle brackets ('<' and '>'), it is not an ideal solution but it gets the job done
-			text=$(unzip -p ${file} content.xml | xmllint --nowarning --format - | sed 's/<[^>]*>//g' | grep --color=always ${grep_parms[@]} "${search_string}");;
+			text=$(unzip -p ${file} content.xml | xmllint --nowarning --format - | sed 's/<[^>]*>//g' | ${GREPBIN} --color=always ${grep_parms[@]} "${search_string}");;
 		pdf) #PDF)
 			# pdftotext and pdfinfo is provided by poppler which should be isntalled if either cups, evince, libreoffice etc. is
 			# Search through the properties of a pdf file and the content
-			text=$(pdfinfo "${file}" | head -n6 | grep --color=always ${grep_parms[@]} "${search_string}")
-			text=${text}$(pdftotext -q "${file}" - | grep --color=always ${grep_parms[@]} "${search_string}");;
+			text=$(pdfinfo "${file}" | head -n6 | ${GREPBIN} --color=always ${grep_parms[@]} "${search_string}")
+			text=${text}$(pdftotext -q "${file}" - | ${GREPBIN} --color=always ${grep_parms[@]} "${search_string}");;
 		*)
-			text=$(grep --color=always ${grep_parms[@]} "${search_string}" "${file}");;
+			text=$(${GREPBIN} --color=always ${grep_parms[@]} "${search_string}" "${file}");;
 	esac
 	# Break if grep reports an error - This must be executed immediately after grep!
 	[[ $? -eq 2 ]] && exit 2
