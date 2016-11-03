@@ -11,12 +11,11 @@ myversion=1.0.0
 function help() {
 	cat <<-EOF
 	$myname $myversion
-	This script is design to grep simply anything: from pdfs, to odf and beyond.
+	This script is design to grep simply anything: from pdfs, to odfs and beyond.
 
-	Usage: $myname [-H] [-h] [-(grep paramter(s))] <search string> <filename(s)>
-	    -h, --help              Display this help message and exit
-	    -H, --with-filename     Print the file name for each match.  This is the default when there is more than one file to search.
-	    *, *                    Any valid grep parameter...
+	Usage: $myname [OPTION(S)] <PATTERN> [FILES(S)]
+	    --help              Display this help message and exit
+	    *, *                Any valid grep parameter; Use \`grep --help\`
 
 	Examples:   # $myname -iHn5 whatis Document.odt
 
@@ -30,11 +29,6 @@ previous_IFS=${IFS}
 # Solely escape proper spaces not those with baskslashes
 IFS=$(echo -en "\n\b")
 
-# Expect that no match is found, hence the default exit code should be one
-exit_code=1
-# Do not print filenames by default
-with_filename=false
-
 # Loop through parameters and split it into a file_list, grep_parms and the search_string
 file_list=()
 grep_parms=()
@@ -42,15 +36,36 @@ search_string=""
 for option in "$@"; do
 	case "$option" in
 		-H|--with-filename)
-			with_filename=true;;
-		-h|--help)
+			with_filename="true";;
+		-h|--no-filename)
+			with_filename="false";;
+		-L|--files-without-match)
+			with_filename_without_match="true"
+			with_filename="false"
+			with_text="false";;
+		-l|--files-with-matches)
+			with_filename="true"
+			with_text="false";;
+		--help)
 			help
 			exit 0;;
 		-*)
-			# Intercept with-filename invocation
+			# Intercept various grep options listed above invocation
 			if [[ "${option}" == *"H"* ]]; then
 				option="$(echo "${option}" | tr -d 'H')"
-				with_filename=true
+				with_filename="true"
+			elif [[ "${option}" == *"h"* ]]; then
+				option="$(echo "${option}" | tr -d 'h')"
+				with_filename="false"
+			elif [[ "${option}" == *"L"* ]]; then
+				option="$(echo "${option}" | tr -d 'L')"
+				with_filename_without_match="true"
+				with_filename="false"
+				with_text="false"
+			elif [[ "${option}" == *"l"* ]]; then
+				option="$(echo "${option}" | tr -d 'l')"
+				with_filename="true"
+				with_text="false"
 			fi
 			# Match any parameter starting with an '-'
 			grep_parms+=("${option}");;
@@ -63,13 +78,28 @@ for option in "$@"; do
 			fi;;
 	esac
 done
-[[ ${#file_list[@]} -gt 1 ]] && with_filename=true
+
+# Expect that no match is found, hence the default exit code should be one
+exit_code=1
+# Prit filenames if more than one files are given and not specified otherwise
+[[ ${#file_list[@]} -gt 1 && -z "${with_filename}" ]] && with_filename="true"
+# Do not print filenames by default
+with_filename="${with_filename:-"false"}"
+# Print filenames of files which did not match the pattern by default
+with_filename_without_match="${with_filename_without_match:-"false"}"
+# Print normal output by default
+with_text="${with_text:-"true"}"
 
 # Stupid debug code
 if (( DEBUG )); then
-	echo "\"${file_list[@]}\""
-	echo "\"${grep_parms[@]}\""
-	echo "\"$search_string\""
+	echo "file_list=\"${file_list[@]}\""
+	echo "grep_parms=\"${grep_parms[@]}\""
+	echo "search_string=\"${search_string}\""
+	echo "--------"
+	echo "with_filename=\"${with_filename}\""
+	echo "with_filename_without_match=\"${with_filename_without_match}\""
+	echo "with_text=\"${with_text}\""
+	echo "--------"
 fi
 
 # Exit if no search pattern or no filename was given
@@ -96,11 +126,19 @@ for file in ${file_list[@]}; do
 	[[ $? -eq 2 ]] && exit 2
 
 	# Exit cleanly if at any point some text was found
-	[[ ! -z "${text}" ]] && exit_code=0
+	[[ -n "${text}" ]] && exit_code=0
 
-	# Print merely the matching text in case just one file is opened otherwise print the filename for each hit
-	[[ ${with_filename,,} == "false" && ! -z "${text}" ]] && echo "${text}"
-	[[ ${with_filename,,} == "true" && ! -z "${text}" ]] && echo -e "\e[35m${file}\e[0m\e[94m:\e[0m${text//$'\n'/$'\n'"\e[35m${file}\e[0m\e[94m:\e[0m"}"
+	# Print output if a match was found
+	if [[ -n "${text}" ]]; then
+		# Print merely matching text
+		[[ ${with_filename,,} == "false" && ${with_text} == "true" ]] && echo "${text}"
+		# Print matching text and filename
+		[[ ${with_filename,,} == "true" && ${with_text} == "true" ]] && echo -e "\e[35m${file}\e[0m\e[94m:\e[0m${text//$'\n'/$'\n'"\e[35m${file}\e[0m\e[94m:\e[0m"}"
+		# Print merely the filename
+		[[ ${with_filename,,} == "true" && ${with_text} == "false" ]] && echo -e "\e[35m${file}\e[0m\e[94m\e[0m"
+	elif [[ -z "${text}" && ${with_filename_without_match,,} == "true" ]]; then
+		echo -e "\e[35m${file}\e[0m\e[94m\e[0m"
+	fi
 done
 
 # Restore previous IFS settings
