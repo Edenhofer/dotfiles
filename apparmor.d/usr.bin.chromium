@@ -18,6 +18,8 @@ profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
 	#include <abstractions/nameservice>
 	#include <abstractions/user-tmp>
 
+	# Enable additional capabilities
+	capability sys_ptrace,
 	# Required by fontconfig
 	capability mknod,
 
