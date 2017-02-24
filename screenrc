@@ -32,10 +32,10 @@ ignorecase on
 
 
 # Open several screens per session
-screen -t BASH 1
-screen -t BASH 2
-screen -t BASH 3
-screen -t MONITORING 4
+screen -t SH 1
+screen -t SH 2
+screen -t SH 3
+screen -t MONITORING 4 zsh -c "htop 2>/dev/null || top"
 screen -t weechat 5 weechat
 screen 6
 screen 7
@@ -73,4 +73,3 @@ bindkey "^[[1;5D" focus left # Left
 bindkey "^[[1;5C" focus # Right
 bindkey "^[[1;5A" focus up # Up
 bindkey "^[[1;5B" focus down # Down
-
