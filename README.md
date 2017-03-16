@@ -15,6 +15,11 @@ All files should be easily readable and self-explaining. However I would still l
 	* extract: decompress any archive
 	* videocmd: invoke ffmpeg and youtube-dl options through a text configuration file
 
+### Zshrc
+* sporting every feature of the bashrc
+* powerful autocompletion
+* plugins like a git status indicator and syntax highlighting
+
 ### Inputrc
 * case insensitive tab-completion
 
@@ -39,6 +44,9 @@ You may use those configuration files solely for inspiration or if you really li
 
 * Use the files as system wide defaults
 ```bash
+# Link zsh configuration file
+ln -s $(pwd)/zshrc /etc/zsh/zshrc
+
 # Link bash configuration file
 ln -s $(pwd)/bash.bashrc /etc/bash.bashrc
 
@@ -65,6 +73,9 @@ find apparmor.d/abstractions -maxdepth 1 -type f -exec ln $(pwd)/{} /etc/apparmo
 
 * Use the files for a single user only
 ```bash
+# Link zsh configuration file
+ln -s $(pwd)/zshrc ~/.zshrc
+
 # Link bash configuration file
 ln -s $(pwd)/bash.bashrc ~/.bashrc
 
