@@ -57,11 +57,38 @@ complete -cf watch
 # CDPATH lets you quickly switch directories
 #[[ -d "$HOME/Projects" ]] && export CDPATH=".:$HOME:$HOME/Projects" || export CDPATH=".:$HOME"
 
-## Extending the PATH
-[[ -d /usr/lib/ccache/bin ]] && PATH="/usr/lib/ccache/bin/:$PATH"
-[[ -d "$HOME/c" ]] && PATH="$HOME/c:$PATH"
-[[ -d "$HOME/bin" ]] && PATH="$HOME/bin:$PATH"
-PATH="$PATH:."
+# Shell history
+export HISTSIZE=5000              # bash history will save N commands
+export HISTFILESIZE=${HISTSIZE}   # bash will remember N commands
+export HISTTIMEFORMAT="%d. %h %H:%M:%S> "    # add timestamps to each command
+
+# Ingore duplicates
+HISTCONTROL=erasedups
+HISTIGNORE='&:exit:logout:clear:history'
+
+# 'Command not found' completion
+command_not_found_handler() {
+	local cmd=$1
+	local FUNCNEST=10
+
+	set +o verbose
+
+	pkgs=(${(f)"$(pkgfile -b -v -- "$cmd" 2>/dev/null)"})
+	if [[ -n "$pkgs" ]]; then
+		printf '%s may be found in the following packages:\n' "$cmd"
+		printf '  %s\n' "${pkgs[@]}"
+		return 0
+	else
+		>&2 printf "${SHELL}: command not found: %s\n" "$cmd"
+		return 127
+	fi
+}
+
+# Extending the PATH
+[[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:$PATH"
+[[ -d "$HOME/c" ]] && export PATH="$HOME/c:$PATH"
+[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
+export PATH="$PATH:."
 
 # Export the default ditor
 if which vim &>/dev/null; then
@@ -73,24 +100,6 @@ elif which emacs &>/dev/null; then
 else
 	export EDITOR="nano"
 fi
-
-# Shell history
-export HISTSIZE=5000              # bash history will save N commands
-export HISTFILESIZE=${HISTSIZE}   # bash will remember N commands
-export HISTTIMEFORMAT="%d. %h %H:%M:%S> "    # add timestamps to each command
-export HISTCONTROL=erasedups     # ingore duplicates
-export HISTIGNORE='&:exit:logout:clear:history'
-
-# Colored manual pages
-# @see http://misc.flogisoft.com/bash/tip_colors_and_formatting for options
-#export PAGER=less
-#export LESS_TERMCAP_mb=$'\E[01;31m'	# begin blinking
-#export LESS_TERMCAP_md=$'\E[01;31m'	# begin bold
-#export LESS_TERMCAP_me=$'\E[0m'			# end mode
-#export LESS_TERMCAP_se=$'\E[0m'			# end standout-mode
-#export LESS_TERMCAP_so=$'\E[34m'			# begin standout-mode - info box
-#export LESS_TERMCAP_ue=$'\E[0m'			# end underline
-#export LESS_TERMCAP_us=$'\E[04m'			# begin underline
 
 # Colorful less
 export LESS='-r'
@@ -104,9 +113,9 @@ alias grep='grep --color=auto'
 # Aliasing ls commands
 alias l='ls -hF --color=auto'
 alias lr='ls -R'  # recursive ls
-alias ll='ls -alhFv'
-alias lh='ls -ahrlt'
-alias la='ls -ah'
+alias ll='ls -AlhFv'
+alias lh='ls -Ahrlt'
+alias la='ls -Ah'
 
 # Standard aliases
 alias ..='cd ..'
@@ -122,7 +131,7 @@ alias cmount='mount | column -t'
 alias meminfo='free -m -l -t'
 alias intercept='sudo strace -ff -e trace=write -e write=1,2 -p'
 alias listen='lsof -P -i -n'
-alias port='netstat -tulanp'
+alias port='ss -tulanp'
 alias genpasswd="strings /dev/urandom | head -n 30 | tr -d '\n' | tr -d '[[:space:]]'; echo"
 
 # Create sudo aliases for various commands
@@ -131,7 +140,9 @@ if [[ $UID -ne 0 ]]; then
 	alias svi='sudo vi'
 	alias svim='sudo vim'
 	alias sv='sudo vim'
+	alias sll='sudo ls -AlhFv'
 	alias sli='sudo less'
+	alias sport='sudo ss -tulanp'
 	alias snano='sudo nano'
 	alias root='sudo su'
 	alias reboot='sudo reboot'
@@ -166,13 +177,13 @@ if which pacman &>/dev/null; then
 	if [[ $UID -ne 0 ]]; then
 		alias pacman='sudo pacman'
 		alias mkinitcpio='sudo mkinitcpio'
-		# A CUSTOM cache location can be specified with '-c', consider this a TODO for you to adjust
+		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
 		alias paccache='sudo paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
 		alias outlib="sudo lsof +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sort -u"
 		alias outpac="sudo lsof +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sed -e 's/.so.*/.so/g' | pacman -Qoq - 2>/dev/null | sort -u"
 	else
-		# A CUSTOM cache location can be specified with '-c', consider this a TODO for you to adjust
+		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
 		alias paccache='paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
 		alias outlib="lsof +c 0 | grep 'DEL.*lib' | awk '{ print \$NF }' | sort -u"
@@ -183,7 +194,7 @@ fi
 # Arch Build System (abs) sudo alias
 which abs &>/dev/null && [[ $UID -ne 0 ]] && alias abs='sudo abs'
 
-# Support netctl package
+# Support netctl commands if available
 if which netctl &>/dev/null; then
 	if [[ $UID -ne 0 ]]; then
 		alias netctl='sudo netctl'
@@ -193,7 +204,7 @@ if which netctl &>/dev/null; then
 fi
 
 # Specialized find alias
-alias fibs='find . -not -path "/proc/*" -not -path "/run/*"  -type l -! -exec test -e {} \; -print'
+alias fibs='find . -not -path "/proc/*" -not -path "/run/*" -type l -! -exec test -e {} \; -print'
 alias fl='find . -type l -exec ls --color=auto -lh {} \;'
 
 # Metasploit Framework
@@ -227,15 +238,6 @@ top10() { history | awk '{a[$4]++ } END{for(i in a){print a[i] " " i}}' | sort -
 # Fetching outwards facing IP-adress
 ipinfo() {
 	[[ -z "$*" ]] && curl ipinfo.io || curl ipinfo.io/$*; echo
-}
-
-# Explaining Shell Commands in the Shell
-explain () {
-	if [ "$#" -eq 0 ]; then
-		echo -e "USAGE:\texplain [COMMAND]"
-	else
-		curl -Gs "https://www.mankier.com/api/explain/?cols="$(tput cols) --data-urlencode "q=$*"
-	fi
 }
 
 # Remind me later
