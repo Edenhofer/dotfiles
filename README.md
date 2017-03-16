@@ -51,8 +51,7 @@ ln -s $(pwd)/zshrc /etc/zsh/zshrc
 ln -s $(pwd)/bash.bashrc /etc/bash.bashrc
 
 # Link various scripts, not included in the bash configuration file
-# PREFERABLY INSTALL THOSE SCRIPTS ON A PER USER BASIS!
-ln -s $(pwd)/bin/* /usr/bin
+ln -s $(pwd)/bin/* /usr/local/bin
 
 # Link inputrc file
 ln -s $(pwd)/inputrc /etc/inputrc
