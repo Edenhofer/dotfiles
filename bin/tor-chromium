@@ -1,43 +1,106 @@
 #!/bin/bash
 
-# A privacy enabled version of chromium using tor proxy and various command line flags
-# in order to disguise the user's location and to hide identifiable information.
+# Define program name and version
+myname=$(basename "$0")
+myversion=1.0.0
 
+# Help function, no arguments required
+function help() {
+	cat <<-EOF
+	$myname $myversion
+	A privacy enabled version of chromium using a specfied proxy or Tor and
+	various command line flags in order to disguise the user's location and to
+	hide identifiable information.
+
+	Usage: $myname <PROXY>
+	    --help              Display this help message and exit
+
+	$myname honors aliases configured via ssh.
+
+	Examples:   # $myname
+	    # $myname tor    # Equivalent to the above
+	    # $myname user@host
+
+	Copyright (c) Gordian Edenhofer <gordian.edenhofer@gmail.com>
+	The script requires chromium, bash>=4.2 and curl.
+	EOF
+}
+
+# Sane starting parameters for chromium
+chromium_args=(
+	--incognito
+	# Disable flash for sure
+	--disable-plugins-discovery
+	--disable-internal-flash
+	# Limit the amount of trackable information (disables interactive 3D graphics)
+	--disable-webgl
+)
+# Check for trackability at
+# https://panopticlick.eff.org/results?#fingerprintTable
+# http://uniquemachine.org/
+
+
+# Simple and stupid argument check since only one argument can be passed
+case "${1}" in
+	"tor"|"")
+		if which systemctl &>/dev/null; then
+			[[ $(systemctl is-active tor) != "active" ]] && systemctl start tor
+		else
+			echo "Could not verify that Tor is running, please make sure it is. Proceeding anyway!"
+		fi
+
+		# Print some information about the new IP address and chromium configuration
+		curl -s --preprox socks5://localhost:9050 ipecho.net/plain 2>&1 | sed -n 's/^\([0-9\.:]*\).*$/fake-ip: \1\n/p'
+		curl -s ipecho.net/plain 2>&1 | sed -n 's/^\([0-9\.:]*\).*$/real-ip: \1\n/p'
+		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
+
+		chromium_args+=(
+			--proxy-server="socks5://localhost:9050"
+			# Disable local DNS queries which might circumvent the socks proxy
+			--host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE localhost"
+		)
+		;;
+	-h|--help)
+		help
+		exit 0
+		;;
+	-*)
+		help
+		exit 1
+		;;
+	*)
+		# Start a socks proxy via ssh
+		ssh -TND 9066 "${1}" &
+		socks_pid=$!
+		sleep 0.3
+
+		# Print some information about the new IP address and chromium configuration
+		curl -s --preprox socks5://localhost:9066 ipecho.net/plain 2>&1 | sed -n 's/^\([0-9\.:]*\).*$/fake-ip: \1\n/p'
+		curl -s ipecho.net/plain 2>&1 | sed -n 's/^\([0-9\.:]*\).*$/real-ip: \1\n/p'
+		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
+
+		chromium_args+=(
+			--proxy-server="socks5://localhost:9066"
+			# Disable local DNS queries which might circumvent the socks proxy
+			--host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE localhost"
+		)
+		;;
+esac
 
 if ! which chromium &>/dev/null; then
 	echo "Could not find chromium!"
 	exit 1
 fi
-if which systemctl &>/dev/null; then
-	[[ $(systemctl is-active tor) != "active" ]] && systemctl start tor
-else
-	echo "Could not verify that Tor is running, please make sure it is. Proceeding anyway!"
-fi
 
 # Create a temporary dir
 tmpdir=$(mktemp -q -p /tmp -t -d "private_chromium".XXX)
+chromium_args+=(--disk-cache-dir=\"${tmpdir}\")
 
-# Print some information about the new IP address and chromium configuration
-curl -s --preprox socks5://localhost:9050 ipinfo.io 2>&1 | sed -n 's/^.*ip\":[^0-9]*\([0-9\.]*\).*$/fake-ip: \1/p'
-curl -s ipinfo.io 2>&1 | sed -n 's/^.*ip\":[^0-9]*\([0-9\.]*\).*$/real-ip: \1/p'
-echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor-proxy.\e[0m"
-
-chromium_args=(
-	--incognito
-	--disk-cache-dir=\"${tmpdir}\"
-	--proxy-server="socks5://localhost:9050"
-	# Disable local DNS queries which might circumvent the socks proxy
-	--host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE localhost"
-	# Limit the amount of trackable information (disables interactive 3D graphics)
-	--disable-webgl
-	# Disable flash for sure
-	--disable-plugins-discovery
-	--disable-internal-flash)
+# Actually invoke the browser
 chromium "${chromium_args[@]}" https://check.torproject.org/
-
-# Check for trackability at
-# https://panopticlick.eff.org/results?#fingerprintTable
-# http://uniquemachine.org/
 
 # Remove temporary dir
 rm -rf "${tmpdir}"
+
+# Kill socks_pid if it is defined meaning a socks process was started previously
+[[ -n "${socks_pid}" ]] && kill "${socks_pid}"
