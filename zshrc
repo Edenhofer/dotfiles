@@ -129,6 +129,9 @@ fi
 # Colorful less
 export LESS='-r'
 
+# Enable GPG support for various command line tools
+export GPG_TTY=$(tty)
+
 # Enable autocolor for various commands through alias
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
