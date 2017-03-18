@@ -28,8 +28,12 @@ bindkey "^[[3~" delete-char
 ZSH=/usr/share/oh-my-zsh/
 
 # ZSH theme to load
-ZSH_THEME="robbyrussell" # Plain and simple theme
-#ZSH_THEME="agnoster" # Fancy and colorful theme
+# Use a different theme for ssh sessions
+if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
+	ZSH_THEME="agnoster" # Fancy and colorful
+else
+	ZSH_THEME="robbyrussell" # Plain and simple
+fi
 
 # Uncomment the following line to use hyphen-insensitive completion. Case
 # sensitive completion must be off. _ and - will be interchangeable.
