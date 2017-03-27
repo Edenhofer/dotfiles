@@ -28,8 +28,10 @@ bindkey "^[[3~" delete-char
 ZSH=/usr/share/oh-my-zsh/
 
 # ZSH theme to load
-# Use a different theme for ssh sessions
+# Use a different theme for ssh sessions, containers and local
 if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
+	ZSH_THEME="agnoster" # Fancy and colorful
+elif systemd-detect-virt &>/dev/null; then
 	ZSH_THEME="agnoster" # Fancy and colorful
 else
 	ZSH_THEME="robbyrussell" # Plain and simple
