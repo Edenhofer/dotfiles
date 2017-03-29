@@ -3,6 +3,11 @@
 # Bash playground
 #
 
+# Strictly disallow uninitialized Variables
+set -u
+# Exit if a single command breaks and its failure is not handled accordingly
+set -e
+
 # Define program name and version
 myname=$(basename "$0")
 myversion=1.0.0
@@ -31,8 +36,10 @@ function usage() {
 
 # Evaluate arguments
 [[ $# -lt 1 ]] && usage && exit 1
-PARAMS=$(getopt -o fdqvVh --long force,download,download-only,quiet,verbose,version,help -n "$myname" -- "$@")
-[[ $? -ne 0 ]] && echo "Try '$myname --help' for more information." && exit 3
+if ! PARAMS=$(getopt -o fdqvVh --long force,download,download-only,quiet,verbose,version,help -n "$myname" -- "$@"); then
+	echo "Try '$myname --help' for more information."
+	exit 3
+fi
 eval set -- "$PARAMS"
 VERBOSITY=24
 NO_SKIP=false
@@ -78,7 +85,7 @@ while true ; do
 	shift
 done
 [[ -z "$*" ]] && usage && exit 1
-input_files=($*)
+input_files=("$@")
 
 # Colored output
 bold=$(tput bold)
@@ -93,15 +100,15 @@ normal=$(tput sgr0)
 # Empty lines and lines starting with a '#' will be ignored
 #
 # Reading the file with a while loop is not possible since it would occupy stdin
-mapfile -t lines <${input_files[@]};
+mapfile -t lines <"${input_files[@]}";
 for line in "${lines[@]}"; do
 	# Skip if the line contains only whitespaces or starts with a '#'
 	[[ "${line// /}" =~ ^"#" ]] && continue
 	[[ -z "${line// /}" ]] && continue
 
 	# Split line into options and URL/object
-	line_options=$(echo ${line} | sed 's/[^ ]\+ //')
-	object=$(echo ${line} | sed 's/\[[^]].*//g')
+	line_options=$(echo "${line}" | sed 's/[^ ]\+ //')
+	object=$(echo "${line}" | sed 's/\[[^]].*//g')
 
 	# Reset variables for next iteration
 	ffmpeg_args="-loglevel ${VERBOSITY} -map_metadata 0 -c:a copy"
@@ -117,8 +124,8 @@ for line in "${lines[@]}"; do
 		IFS=${previous_IFS}
 
 		# Extract option and its value
-		option="$(echo ${param} | sed -n 's/^.*\[\([^=]*\).*/\1/p')"
-		option_value="$(echo ${param} | sed -n 's/^.*=\(\)/\1/p')"
+		option="$(echo "${param}" | sed -n 's/^.*\[\([^=]*\).*/\1/p')"
+		option_value="$(echo "${param}" | sed -n 's/^.*=\(\)/\1/p')"
 		case ${option} in
 			"FILE")
 				# Skip if no argument was specified
@@ -206,10 +213,8 @@ for line in "${lines[@]}"; do
 
 	# Invoke ffmpeg with the specified options
 	echo -e "${bold}-->${normal} Processing '${output_video}' using '${ffmpeg_vfilters}'..."
-	ffmpeg -i "${input_video}" -filter:v ${ffmpeg_vfilters} ${ffmpeg_args} "${output_video}"
-
-	# Move orig file back in place if things go south
-	if [[ $? -ne 0 ]]; then
+	if ! ffmpeg -i "${input_video}" -filter:v ${ffmpeg_vfilters} ${ffmpeg_args} "${output_video}"; then
+		# Move orig file back in place if things go south
 		>&2 echo -e "${bold}ERROR:${normal} '${input_video}' using '${ffmpeg_vfilters}' ${bold}FAILED${normal}"
 		[[ "${orig_file}" ]] && mv "${input_video}" "${orig_file}"
 	elif [[ "${NO_BACKUP,,}" == true ]]; then
