@@ -3,6 +3,11 @@
 # extract: Archive extraction
 #
 
+# Strictly disallow uninitialized Variables
+set -u
+# Exit if a single command breaks and its failure is not handled accordingly
+set -e
+
 # Color codes
 ALL_OFF="$(tput sgr0)"
 BOLD="$(tput bold)"
@@ -10,11 +15,11 @@ BLUE="${BOLD}$(tput setaf 4)"
 msg() {
 	(( QUIET )) && return
 	local mesg=$1; shift
-	printf "${BOLD}${mesg}${ALL_OFF}\n" "$@" >&1
+	printf "%s%s%s\n" "${BOLD}" "${mesg}" "${ALL_OFF}" "$@" >&1
 }
 ask() {
 	local mesg=$1; shift
-	printf "${BLUE}::${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}" "$@" >&1
+	printf "%s::%s%s %s%s" "${BLUE}" "${ALL_OFF}" "${BOLD}" "${mesg}" "${ALL_OFF}" "$@" >&1
 }
 
 # Error checking
@@ -35,11 +40,10 @@ if [[ -n "$2" ]]; then
 		DESTDIR="$2"
 	else
 		ask "Destination folder '$2' doesn't exist or is not a directory. Create it? (y/n): "
-		read -n1 user_input
+		read -rn1 user_input
 		echo
 		if [[ "${user_input}" =~ (Y|y) ]]; then
-			mkdir -p "$2"
-			if [[ $? -eq 0 ]]; then
+			if mkdir -p "$2"; then
 				DESTDIR="$2"
 			else
 				# Write permission error
@@ -56,10 +60,10 @@ else
 fi
 
 # Pass additional arguments on to tar
-[[ -z $2 ]] && params="${@:2}" || params="${@:3}"
+[[ -z $2 ]] && params="${*:2}" || params="${*:3}"
 
 # Extract file
-filename=`basename "$1"`
+filename=$(basename "$1")
 case "${filename##*.}" in
 	tar)
 		msg "Extracting $1 to $DESTDIR: (uncompressed tar)"
