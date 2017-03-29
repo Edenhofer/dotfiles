@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Strictly disallow uninitialized Variables
+set -u
+# Exit if a single command breaks and its failure is not handled accordingly
+set -e
+
 # Define program name and version
 myname=$(basename "$0")
 myversion=1.0.0
@@ -28,12 +33,12 @@ function help() {
 
 # Sane starting parameters for chromium
 chromium_args=(
-	--incognito
+	'--incognito'
 	# Disable flash for sure
-	--disable-plugins-discovery
-	--disable-internal-flash
+	'--disable-plugins-discovery'
+	'--disable-internal-flash'
 	# Limit the amount of trackable information (disables interactive 3D graphics)
-	--disable-webgl
+	'--disable-webgl'
 )
 # Check for trackability at
 # https://panopticlick.eff.org/results?#fingerprintTable
@@ -41,7 +46,7 @@ chromium_args=(
 
 
 # Simple and stupid argument check since only one argument can be passed
-case "${1}" in
+case "${1:-}" in
 	"tor"|"")
 		if which systemctl &>/dev/null; then
 			[[ $(systemctl is-active tor) != "active" ]] && systemctl start tor
@@ -55,9 +60,9 @@ case "${1}" in
 		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
 
 		chromium_args+=(
-			--proxy-server="socks5://localhost:9050"
+			'--proxy-server='"socks5://localhost:9050"
 			# Disable local DNS queries which might circumvent the socks proxy
-			--host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE localhost"
+			'--host-resolver-rules='"MAP * ~NOTFOUND , EXCLUDE localhost"
 		)
 		;;
 	-h|--help)
@@ -70,7 +75,7 @@ case "${1}" in
 		;;
 	*)
 		# Start a socks proxy via ssh
-		ssh -TND 9066 "${1}" &
+		ssh "${1}" -TND 9066 &
 		socks_pid=$!
 		sleep 0.3
 
@@ -80,9 +85,9 @@ case "${1}" in
 		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
 
 		chromium_args+=(
-			--proxy-server="socks5://localhost:9066"
+			'--proxy-server='"socks5://localhost:9066"
 			# Disable local DNS queries which might circumvent the socks proxy
-			--host-resolver-rules="MAP * ~NOTFOUND , EXCLUDE localhost"
+			'--host-resolver-rules='"MAP * ~NOTFOUND , EXCLUDE localhost"
 		)
 		;;
 esac
@@ -94,13 +99,16 @@ fi
 
 # Create a temporary dir
 tmpdir=$(mktemp -q -p /tmp -t -d "private_chromium".XXX)
-chromium_args+=(--disk-cache-dir=\"${tmpdir}\")
+chromium_args+=('--disk-cache-dir='"${tmpdir}")
 
+exit_code=0
 # Actually invoke the browser
-chromium "${chromium_args[@]}" https://check.torproject.org/
+chromium "${chromium_args[@]}" https://check.torproject.org/ || exit_code=$?
 
 # Remove temporary dir
 rm -rf "${tmpdir}"
 
 # Kill socks_pid if it is defined meaning a socks process was started previously
 [[ -n "${socks_pid}" ]] && kill "${socks_pid}"
+
+exit "${exit_code}"
