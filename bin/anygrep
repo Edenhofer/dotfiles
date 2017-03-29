@@ -3,6 +3,10 @@
 # anygrep: Grep through more than just plain text files
 #
 
+# Strictly disallow uninitialized Variables
+set -u
+# Exiting if a single command breaks (set -e) is not possible since individual grep commands may fail
+
 # Define program name and version
 myname=$(basename "$0")
 myversion=1.0.0
@@ -87,7 +91,7 @@ done
 # Expect that no match is found, hence the default exit code should be one
 exit_code=1
 # Prit filenames if more than one files are given and not specified otherwise
-[[ ${#file_list[@]} -gt 1 && -z "${with_filename}" ]] && with_filename="true"
+[[ ${#file_list[@]} -gt 1 && -z "${with_filename:-""}" ]] && with_filename="true"
 # Do not print filenames by default
 with_filename="${with_filename:-"false"}"
 # Print filenames of files which did not match the pattern by default
@@ -98,7 +102,7 @@ with_text="${with_text:-"true"}"
 GREPBIN="${GREPBIN:-"grep"}"
 
 # Stupid debug code
-if (( DEBUG )); then
+if (( ${DEBUG:-""} )); then
 	echo "file_list=\"${file_list[@]}\""
 	echo "grep_parms=\"${grep_parms[@]}\""
 	echo "search_string=\"${search_string}\""
@@ -113,14 +117,14 @@ fi
 [[ ${#file_list[@]} -lt 1 ]] && echo "No file specified" && exit 2
 [[ -z ${#search_string} ]] && echo "No search string specified" && exit 2
 
-for file in ${file_list[@]}; do
+for file in "${file_list[@]}"; do
 	# Using $(file) is possible as well and it is properly implemented but commented out in the follwing code block
-	ext=$(echo ${file##*.}) #ext=$(file -L -p -b ${file}) && ext=${ext%% *}
+	ext=${file##*.} #ext=$(file -L -p -b ${file}) && ext=${ext%% *}
 	case "$ext" in
 		odt|ods|odp|sxi) #OpenDocument)
 			# An odf file (Open Document Format e.g. odt) is simply a zipped folder in which content.xml contains the actual text in xml in format
 			# The sed command removes any content in between angle brackets ('<' and '>'), it is not an ideal solution but it gets the job done
-			text=$(unzip -p ${file} content.xml | xmllint --nowarning --format - | sed 's/<[^>]*>//g' | ${GREPBIN} --color=always ${grep_parms[@]} "${search_string}");;
+			text=$(unzip -p "${file}" content.xml | xmllint --nowarning --format - | sed 's/<[^>]*>//g' | ${GREPBIN} --color=always ${grep_parms[@]} "${search_string}");;
 		pdf) #PDF)
 			# pdftotext and pdfinfo is provided by poppler which should be isntalled if either cups, evince, libreoffice etc. is
 			# Search through the properties of a pdf file and the content
