@@ -1,17 +1,24 @@
 #!/bin/bash
 
+# Strictly disallow uninitialized Variables
+set -u
+# Exit if a single command breaks and its failure is not handled accordingly
+set -e
+
 # Archive compression
-if [[ -n "$1" ]]; then
-	FILE=$1
-	case $FILE in
-		*.tar ) shift && tar cf $FILE $* ;;
-		*.tar.xz ) shift && tar cJf $FILE $* ;;
-		*.tar.bz2 ) shift && tar cjf $FILE $* ;;
-		*.tar.gz ) shift && tar czf $FILE $* ;;
-		*.tgz ) shift && tar czf $FILE $* ;;
-		*.zip ) shift && zip $FILE $* ;;
-		*.rar ) shift && rar $FILE $* ;;
+if [[ -n "${*:-""}" ]]; then
+	output_filename="${*:$#}"
+	input_files="${*%${!#}}"
+	case "${output_filename}" in
+		*.tar) tar cf "${output_filename}" ${input_files} ;;
+		*.tar.xz) tar cJf "${output_filename}" ${input_files} ;;
+		*.tar.bz2) tar cjf "${output_filename}" ${input_files} ;;
+		*.tar.gz) tar czf "${output_filename}" ${input_files} ;;
+		*.tgz) tar czf "${output_filename}" ${input_files} ;;
+		*.zip) zip "${output_filename}" ${input_files} ;;
+		*.rar) rar "${output_filename}" ${input_files} ;;
+		*) echo "Usage: compress ./foo ./bar <filename.tar.xz>" && exit 1 ;;
 	esac
 else
-	echo "Usage: compress <filename.tar.xz> ./foo ./bar"
+	echo "Usage: compress ./foo ./bar <filename.tar.xz>"
 fi
