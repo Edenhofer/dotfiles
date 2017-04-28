@@ -66,8 +66,8 @@ plugins=(vi-mode git dirhistory zsh-completions)
 
 # Oh-my-zsh caching
 ZSH_CACHE_DIR=$HOME/.oh-my-zsh-cache
-if [[ ! -d $ZSH_CACHE_DIR ]]; then
-	mkdir $ZSH_CACHE_DIR
+if [[ ! -d "$ZSH_CACHE_DIR" ]]; then
+	mkdir "$ZSH_CACHE_DIR"
 fi
 
 # Initiate oh-my-zsh
@@ -105,7 +105,7 @@ command_not_found_handler() {
 	set +o verbose
 
 	pkgs=(${(f)"$(pkgfile -b -v -- "$cmd" 2>/dev/null)"})
-	if [[ -n "$pkgs" ]]; then
+	if [[ -n "${pkgs[*]}" ]]; then
 		printf '%s may be found in the following packages:\n' "$cmd"
 		printf '  %s\n' "${pkgs[@]}"
 		return 0
@@ -133,7 +133,7 @@ else
 fi
 
 # Colorful less
-export LESS='-r'
+export LESS='-R'
 
 # Enable GPG support for various command line tools
 export GPG_TTY=$(tty)
@@ -250,18 +250,18 @@ elif which msfconsole &>/dev/null; then
 fi
 
 # Enable fuck support if present
-which thefuck &>/dev/null && eval $(thefuck --alias)
+which thefuck &>/dev/null && eval "$(thefuck --alias)"
 
 # Disable R's verbose startup message
 which R &>/dev/null && alias R="R --quiet"
 
 # Sort By Size
 sbs() {
-	du -h --max-depth=1 "${*:-"."}" | sort -h
+	du -h --max-depth=1 "${@:-"."}" | sort -h
 }
 
 # Create directory and cd into it
-mcd() { mkdir -p "$1"; cd "$1";}
+mcd() { mkdir -p "$1" && cd "$1"; }
 
 # Comparing the md5sum of a file "$1" with a given one "$2"
 md5check() { md5sum "$1" | grep "$2";}
@@ -271,13 +271,13 @@ top10() { history | awk '{a[$4]++ } END{for(i in a){print a[i] " " i}}' | sort -
 
 # Fetching outwards facing IP-adress
 ipinfo() {
-	[[ -z "$*" ]] && curl ipinfo.io || curl ipinfo.io/$*; echo
+	[[ -z "$*" ]] && curl ipinfo.io || curl ipinfo.io/"$*"; echo
 }
 
 # Remind me later
 # usage: remindme <time> <text>
 # e.g.: remindme 10m "omg, the pizza"
-remindme() { sleep $1 && zenity --info --text "$2" & }
+remindme() { sleep "$1" && zenity --info --text "$2" & }
 
 # Simple calculator
 calc() {
@@ -293,10 +293,10 @@ swap() {
 	local TMPFILE=tmp.$$
 
 	[[ $# -ne 2 ]] && echo "swap: 2 arguments needed" && return 1
-	[[ ! -e $1 ]] && echo "swap: $1 does not exist" && return 1
-	[[ ! -e $2 ]] && echo "swap: $2 does not exist" && return 1
+	[[ ! -e "$1" ]] && echo "swap: $1 does not exist" && return 1
+	[[ ! -e "$2" ]] && echo "swap: $2 does not exist" && return 1
 
-	mv "$1" $TMPFILE
+	mv "$1" "$TMPFILE"
 	mv "$2" "$1"
-	mv $TMPFILE "$2"
+	mv "$TMPFILE" "$2"
 }
