@@ -53,6 +53,7 @@ profile insync /usr/lib/insync/insync {
 	/etc/xdg/xubuntu/applications/defaults.list r,
 	/var/cache/fontconfig/* rw,
 	owner @{HOME}/.cache/fontconfig/* rw,
+	owner @{HOME}/.cache/gstreamer-*/** r,
 	owner @{HOME}/.local/share/applications/defaults.list r,
 	owner @{HOME}/.local/share/applications/mimeinfo.cache r,
 
