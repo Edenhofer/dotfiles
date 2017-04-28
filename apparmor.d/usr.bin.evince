@@ -50,6 +50,9 @@ profile evince /usr/bin/evince {
 	/etc/xdg/xdg-xubuntu/xfce4/helpers.rc r,
 	/etc/xdg/xfce4/helpers.rc r,
 
+	# Certificate handling
+	/etc/ca-certificates/extracted/** r,
+
 	# Allow directory browsing via the file dialog
 	/ r,
 	/**/ r,
