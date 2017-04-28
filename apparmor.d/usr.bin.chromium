@@ -117,9 +117,10 @@ profile chromium /usr/lib/chromium/chromium flags=(attach_disconnected) {
 	/**/ r,
 
 	# Configuration directories and cache
+	/var/cache/fontconfig/ rw,
 	/var/cache/fontconfig/* rw,
 	owner @{HOME}/.pki/nssdb/* rwk,
-	owner @{HOME}/.cache/fontconfig/* rw,
+	owner @{HOME}/.cache/fontconfig/* rwk,
 	owner @{HOME}/.cache/thumbnails/** r,
 	owner @{HOME}/.cache/@{browser_long}/ rw,
 	owner @{HOME}/.cache/@{browser_long}/** rw,
