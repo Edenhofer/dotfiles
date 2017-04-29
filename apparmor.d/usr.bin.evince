@@ -58,6 +58,9 @@ profile evince /usr/bin/evince {
 	/**/ r,
 	@{HOME}/ r,
 
+	# Enable Wayland support
+	owner /run/user/[0-9]*/wayland-cursor-shared-* rwk,
+
 	# Save files in the user's home dir and mount points
 	# (we still have abstractions/private-files-strict in effect).
 	@{HOME}/** rw,
