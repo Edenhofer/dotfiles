@@ -1,0 +1,242 @@
+# Maintainer: Gordian Edenhofer <gordian.edenhofer@gmail.com>
+# Original URL: https://www.wilderssecurity.com/threads/apparmor-profiles-for-ubuntu-based-distros.366041
+
+#include <tunables/global>
+@{sys}=/sys
+
+profile evolution /usr/bin/evolution {
+	#include <abstractions/audio>
+	#include <abstractions/dbus-session>
+	#include <abstractions/gnome>
+	#include <abstractions/nameservice>
+	#include <abstractions/python>
+	#include <abstractions/ibus>
+	#include <abstractions/enchant>
+	#include <abstractions/ssl_certs>
+
+	#include <abstractions/ubuntu-helpers>
+	#include <abstractions/ubuntu-browsers>
+
+	# Required by fontconfig
+	capability mknod,
+
+	# Expand ssl_certs abstraction
+	/etc/ca-certificates/ r,
+	/etc/ca-certificates/** r,
+
+	/ r,
+	deny /boot/{vmlinuz,initrd}* r,
+	/etc/timezone r,
+	owner @{PROC}/@{pid}/fd/ r,
+	owner @{PROC}/@{pid}/cmdline r,
+	owner @{PROC}/@{pid}/auxv r,
+	/usr/include/python2.7/pyconfig.h r,
+	/usr/share/evolution-data-server-*/** r,
+	/usr/share/evolution/** r,
+	/usr/lib/evolution/**/*.so mr,
+	/usr/lib/evolution-data-server/**/*.so mr,
+	/usr/share/mx/style/*.css r,
+	/usr/bin/evolution mrix,
+
+	# Noisy when searching /tmp for file attachments
+	deny /tmp/.X0-lock r,
+	deny /tmp/.pkapi_xpk r,
+
+	# Helper applications
+	/usr/lib/evolution/killev Cx -> killev,
+	/usr/lib/evolution/evolution-backup Cx -> evohelper,
+	/usr/lib/evolution/evolution-alarm-notify Cx -> evohelper,
+	/usr/bin/gpg{,2} Cx -> gpg,
+	/usr/bin/evince Pix,
+	/usr/bin/seahorse-tool ix,
+	/usr/share/seahorse-plugins/** r,
+	/usr/bin/gedit Cx -> gedit,
+
+	owner @{HOME}/.gnome2_private/Evolution rw,
+	owner @{HOME}/.{,local/share/}camel_certs/ rw,
+	owner @{HOME}/.{,local/share/}camel_certs/* rw,
+
+	# Manage access to sys
+	@{sys}/devices/system/cpu/ r,
+	@{sys}/devices/system/cpu/* r,
+
+	# Evolution storage locations
+	owner @{HOME}/.cache/evolution/ rw,
+	owner @{HOME}/.cache/evolution/** rwkl,
+	owner @{HOME}/.config/evolution/ rw,
+	owner @{HOME}/.config/evolution/** rwkl,
+	owner @{HOME}/.local/share/evolution/ rw,
+	owner @{HOME}/.local/share/evolution/** rwkl,
+
+	# GTK integration
+	/usr/share/gtk-[0-9.]*/settings.ini r,
+	/usr/share/gtkhtml-*/** r,
+	@{HOME}/.config/gtk-3.0/bookmarks r,
+
+	# Webkit integration
+	/dev/ r,
+	/usr/lib/webkit2gtk-[0-9.]*/** ix,
+	owner @{HOME}/.cache/thumbnails/** r,
+	owner @{HOME}/.local/share/webkitgtk/ r,
+	owner @{HOME}/.local/share/webkitgtk/** r,
+	/usr/lib/gstreamer-[0-9.]*/gst-plugin-scanner ix,
+	/usr/lib/ladspa/*.so rm,
+	owner @{HOME}/.cache/gstreamer-[0-9.]*/ r,
+	owner @{HOME}/.cache/gstreamer-[0-9.]*/* rwk,
+
+	# Save to ~/Downloads and read attachments from any dirs not starting with a '.'
+	owner @{HOME}/ r,
+	owner @{HOME}/[^.]** r,
+	owner @{HOME}/Downloads/* rw,
+
+	# Possibly in abstractions?
+	owner @{HOME}/.goutputstream-* rw,
+	owner @{HOME}/.thumbnails/** r,
+	/usr/share/gnome/applications/mimeinfo.cache r,
+	/usr/share/glib-*/schemas/* r,
+
+	owner @{HOME}/.cache/dconf/user rw,
+	owner @{HOME}/.config/dconf/user r,
+	owner @{HOME}/.local/share/gvfs-metadata/home* r,
+
+	owner @{HOME}/.pki/ rw,
+	owner @{HOME}/.pki/nssdb/ rw,
+	owner @{HOME}/.pki/nssdb/* rwk,
+
+	/usr/share/xml/iso-codes/* r,
+	/usr/share/libthai/thbrk.tri r,
+
+	# Allow for shared memory in tmpfs
+	owner /dev/shm/* rwmk,
+
+	# Required by evohelper
+	/usr/share/gtk-[0-9.]*/settings.ini r,
+	/run/user/[0-9]*/dconf/user rw,
+
+	profile killev {
+		#include <abstractions/base>
+		#include <abstractions/gnome>
+		#include <abstractions/nameservice>
+
+		capability sys_ptrace,
+
+		/{usr/,}bin/dash rix,
+		@{PROC}/ r,
+		@{PROC}/@{pid}/cmdline r,
+		@{PROC}/@{pid}/stat r,
+		deny @{PROC}/@{pid}/fd/ r,
+		/usr/bin/killall rix,
+
+		/usr/bin/evolution Px,
+
+		owner @{HOME}/.config/evolution/.running r,
+	}
+
+	profile gpg {
+		#include <abstractions/base>
+		/usr/bin/gpg{,2} mr,
+		/usr/bin/gpg-agent Ux,
+		owner @{HOME}/.gnupg r,
+		owner @{HOME}/.gnupg/gnupg_spawn_agent_sentinel.lock rwl,
+		owner @{HOME}/.gnupg/gpg.conf r,
+		owner @{HOME}/.gnupg/random_seed rwk,
+		owner @{HOME}/.gnupg/pubring.{gpg,kbx} r,
+		owner @{HOME}/.gnupg/secring.gpg r,
+		owner @{HOME}/.gnupg/trustdb.gpg rw,
+		owner @{HOME}/.gnupg/*.gpg.{lock,tmp} wl,
+		owner @{HOME}/.gnupg/.#* rwl,
+
+		owner /tmp/evolution-pgp.* rw,
+
+		/run/user/[0-9]*/gnupg/ rwm,
+		/run/user/[0-9]*/gnupg/* r,
+
+		owner @{PROC}/@{pid}/fd/ r,
+	}
+
+	profile evohelper {
+		#include <abstractions/base>
+		#include <abstractions/gnome>
+		#include <abstractions/nameservice>
+
+		owner @{PROC}/@{pid}/auxv r, # investigate
+
+		/{usr/,}bin/dash rix,
+		/{usr/,}bin/rm ix,
+		/{usr/,}bin/tar ix,
+		/{usr/,}bin/gzip ix,
+		/usr/bin/gconftool-2 ix,
+		/usr/bin/evolution Px,
+
+		/usr/share/gtk-[0-9.]*/settings.ini r,
+		/run/user/[0-9]*/dconf/user rwml,
+
+		# For evolution-alarm-notify
+		/usr/lib/evolution/evolution-alarm-notify mr,
+		/usr/share/glib-*/schemas/* r,
+		owner @{HOME}/.{cache,config}/dconf/user rw,
+
+		owner @{HOME}/ r,
+
+		# What to backup
+		owner @{HOME}/.{,local/share/}camel_certs/ r,
+		owner @{HOME}/.{,local/share/}camel_certs/* r,
+
+		owner @{HOME}/.evolution/ r,
+		owner @{HOME}/.evolution/** r,
+		owner @{HOME}/.gnome2_private/Evolution r,
+
+		owner @{HOME}/.cache/evolution/ r,
+		owner @{HOME}/.cache/evolution/** r,
+		owner @{HOME}/.config/evolution/ r,
+		owner @{HOME}/.config/evolution/** r,
+		owner @{HOME}/.local/share/evolution/ r,
+		owner @{HOME}/.local/share/evolution/** r,
+
+		# Where to backup
+		owner @{HOME}/evolution-backup*.tar.gz w,
+		owner @{HOME}/evolution.dir* rw,
+		owner @{HOME}/.local/share/evolution/backup-restore-gconf.xml* rw,
+	}
+
+	profile gedit {
+		#include <abstractions/dbus-session>
+		#include <abstractions/gnome>
+		#include <abstractions/enchant>
+		#include <abstractions/ibus>
+		#include <abstractions/private-files-strict>
+
+		/usr/bin/gedit r,
+
+		/etc/passwd r,
+		deny /etc/nsswitch.conf r,
+		deny /tmp/.X0-lock r,
+
+		@{sys}/devices/**/block/**/uevent r,
+		/dev/.udev/db/* r,
+		/etc/udev/udev.conf r,
+		@{PROC}/@{pid}/mountinfo r,
+
+		/usr/share/gedit{,-2}/ r,
+		/usr/share/gedit{,-2}/** r,
+		/usr/share/gtksourceview-[2-9]*/ r,
+		/usr/share/gtksourceview-[2-9]*/** r,
+
+		# possibly in abstractions?
+		/usr/share/glib-*/schemas/* r,
+		owner @{HOME}/.{cache,config}/dconf/user rw,
+
+		owner @{HOME}/.cache/evolution/tmp/** r,
+		owner @{HOME}/.local/share/gvfs-metadata/ r,
+		owner @{HOME}/.local/share/gvfs-metadata/** r,
+		owner @{HOME}/.gnome2/accels/gedit rw,
+		owner @{HOME}/.{config,gnome2}/gedit/ r,
+		owner @{HOME}/.{config,gnome2}/gedit/** rw,
+
+		# allow writes here
+		owner @{HOME}/Downloads/** rw,
+
+		# not strictly needed
+		deny @{HOME}/.config/gtk-3.0/bookmarks rw,
+	}
+}
