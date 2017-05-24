@@ -1,5 +1,5 @@
 # Maintainer: Gordian Edenhofer <gordian.edenhofer@gmail.com>
-# Original URL: https://www.wilderssecurity.com/threads/apparmor-profiles-for-ubuntu-based-distros.366041/
+# Original URL: https://git.launchpad.net/apparmor-profiles/tree/ubuntu/17.10/usr.bin.evolution
 
 #include <tunables/global>
 @{sys}=/sys
@@ -42,6 +42,8 @@ profile vlc /usr/bin/vlc {
 	/usr/lib/vlc/** r,
 	# Allow for write acces to its plugin file
 	/usr/lib/vlc/plugins/plugins.dat.[0-9]* rwk,
+	/usr/share/vlc/** r,
+	/usr/share/vlc/utils/* ix,
 
 	# Add missing read acces to /usr/share file
 	/usr/share/gtk-2.0/gtkrc r,
