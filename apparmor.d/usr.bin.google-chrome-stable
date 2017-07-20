@@ -8,6 +8,7 @@
 @{browser}=chrome
 @{browser_long}=google-chrome
 @{browser_location}=/opt/google/chrome
+@{browser_global_config}=/etc/opt/chrome
 
 profile google-chrome /opt/google/chrome/chrome flags=(attach_disconnected) {
 	#include <abstractions/audio>
@@ -56,6 +57,10 @@ profile google-chrome /opt/google/chrome/chrome flags=(attach_disconnected) {
 	# Handle udev
 	/run/udev/data/** r,
 	/etc/udev/udev.conf r,
+
+	# Gnome Shell Plugin support
+	@{browser_global_config}/** r,
+	/usr/bin/chrome-gnome-shell Cxr -> gnome_shell,
 
 	# Configuration of mime and various tools
 	/etc/mime.types r,
@@ -191,6 +196,55 @@ profile google-chrome /opt/google/chrome/chrome flags=(attach_disconnected) {
 		/usr/share/applications/*.desktop r,
 		owner @{HOME}/.local/share/applications/ w,
 		owner @{HOME}/.local/share/applications/mimeapps.list* rw,
+
+		# Terminal interaction
+		/dev/tty rw,
+	}
+
+	profile gnome_shell {
+		#include <abstractions/bash>
+		#include <abstractions/gnome>
+		#include <abstractions/base>
+		#include <abstractions/python>
+
+		# Executable right to programs in /usr/bin
+		/usr/bin/chrome-gnome-shell r,
+		/usr/bin/bash ixr,
+		/usr/bin/uname ixr,
+		/usr/bin/gcc ixr,
+		/usr/bin/ldconfig ixr,
+		/usr/bin/ld ixr,
+
+		# Read and memory map access for various programs
+		/usr/bin/ r,
+		/usr/bin/python* mr,
+		/usr/lib/python3.[0-9]/lib-dynload/*.so m,
+		/usr/lib/python3.[0-9]/site-packages/**.so m,
+		/usr/share/glib-[0-9.]*/schemas/gschemas.compiled r,
+
+		# GSettings
+		owner /{,var/}run/user/*/dconf/ rw,
+		owner /{,var/}run/user/*/dconf/user rw,
+		owner @{HOME}/.config/dconf/user r,
+
+		# Certificate handling
+		/etc/ca-certificates/extracted/** r,
+
+		# Basic network configuration access
+		/etc/hosts r,
+		/etc/host.conf r,
+		/etc/nsswitch.conf r,
+		/etc/resolv.conf r,
+		/etc/gai.conf r,
+
+		# Handle /proc access
+		@{PROC}/ r,
+		@{PROC}/* r,
+		@{PROC}/@{pid}/fd/ r,
+		@{PROC}/@{pid}/stat r,
+		@{PROC}/@{pid}/**/stat r,
+		@{PROC}/@{pid}/status r,
+		@{PROC}/@{pid}/**/status r,
 
 		# Terminal interaction
 		/dev/tty rw,
