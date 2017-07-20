@@ -101,10 +101,10 @@ profile google-chrome /opt/google/chrome/chrome flags=(attach_disconnected) {
 	owner /{,var/}run/user/*/dconf/user rw,
 	owner @{HOME}/.config/dconf/user r,
 
-	# Allows uploads from all dirs not starting wit a '.' and downloads to ~/Downloads
+	# Allow uploads from all dirs not starting wit a '.' and downloads to ~/Downloads
 	owner @{HOME}/ r,
 	owner @{HOME}/[^.]** r,
-	owner @{HOME}/@{XDG_DOWNLOAD_DIR}/** rw,
+	owner @{HOME}/@{XDG_DOWNLOAD_DIR}/[^.]** rw,
 
 	# Handle executable right to programs in /usr/bin
 	/usr/bin/xdg-open ixr,
@@ -181,7 +181,6 @@ profile google-chrome /opt/google/chrome/chrome flags=(attach_disconnected) {
 		/usr/bin/lsb_release r,
 		/usr/bin/xdg-settings r,
 		/usr/include/python2.[4567]/pyconfig.h r,
-		/usr/local/lib/python*/dist-packages/ r,
 		@{browser_location}/xdg-settings r,
 
 		# Access to configuration files and caches
