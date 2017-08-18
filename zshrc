@@ -25,7 +25,11 @@ bindkey "^[[3~" delete-char
 
 # The following lines were added by oh-my-zsh
 # Path to your oh-my-zsh installation
-ZSH=/usr/share/oh-my-zsh/
+if [[ -d /usr/share/oh-my-zsh/ ]]; then
+	ZSH=/usr/share/oh-my-zsh/
+else
+	ZSH=~/.oh-my-zsh/
+fi
 
 # ZSH theme to load
 # Use a different theme for ssh sessions, containers and local
@@ -74,24 +78,12 @@ fi
 source $ZSH/oh-my-zsh.sh
 # End of lines added by oh-my-zsh
 
-# The following lines were added by compinstall
-zstyle ':completion:*' completer _expand _complete _ignored
-zstyle ':completion:*' list-colors ''
-zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
-zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'l:|=* r:|=*'
-zstyle ':completion:*' menu select=long
-zstyle ':completion:*' preserve-prefix '//[^/]##/'
-zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
-zstyle ':completion:*' squeeze-slashes true
-zstyle ':completion:*' verbose true
-zstyle :compinstall filename '/home/edh/.zsh_compinstall'
-
-autoload -Uz compinit
-compinit
-# End of lines added by compinstall
-
 # Syntax highlighting
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+if [[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+	source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+elif [[ -f ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+	source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
 
 # Ingore duplicates
 HISTCONTROL=erasedups
