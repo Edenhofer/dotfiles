@@ -5,7 +5,8 @@
 
 # Strictly disallow uninitialized Variables
 set -u
-# Exiting if a single command breaks (set -e) is not possible since individual grep commands may fail
+# Exit if a single command breaks and its failure is not handled accordingly
+set -e
 
 # Define program name and version
 myname=$(basename "$0")
@@ -43,7 +44,7 @@ file_list=()
 grep_parms=()
 search_string=""
 for option in "$@"; do
-	case "$option" in
+	case "${option}" in
 		-H|--with-filename)
 			with_filename="true";;
 		-h|--no-filename)
@@ -58,8 +59,11 @@ for option in "$@"; do
 		--help)
 			help
 			exit 0;;
+		--*)
+			# Match '--' to prevent a later match with '-'
+			grep_parms+=("${option}");;
 		-*)
-			# Intercept various grep options listed above invocation
+			# Intercept previously explicitly matched grep options from a multi-option option
 			if [[ "${option}" == *"H"* ]]; then
 				option="$(echo "${option}" | tr -d 'H')"
 				with_filename="true"
@@ -76,7 +80,7 @@ for option in "$@"; do
 				with_filename="true"
 				with_text="false"
 			fi
-			# Match any parameter starting with an '-'
+			# Match any parameter starting with exactly one '-'
 			grep_parms+=("${option}");;
 		*)
 			if [[ -z ${search_string} ]]; then
@@ -90,7 +94,7 @@ done
 
 # Expect that no match is found, hence the default exit code should be one
 exit_code=1
-# Prit filenames if more than one files are given and not specified otherwise
+# Print filenames if more than one file is given and not specified otherwise
 [[ ${#file_list[@]} -gt 1 && -z "${with_filename:-""}" ]] && with_filename="true"
 # Do not print filenames by default
 with_filename="${with_filename:-"false"}"
@@ -102,9 +106,9 @@ with_text="${with_text:-"true"}"
 GREPBIN="${GREPBIN:-"grep"}"
 
 # Stupid debug code
-if (( ${DEBUG:-""} )); then
-	echo "file_list=\"${file_list[@]}\""
-	echo "grep_parms=\"${grep_parms[@]}\""
+if [[ -n ${DEBUG:-""} ]]; then
+	echo "file_list=\"${file_list[*]}\""
+	echo "grep_parms=\"${grep_parms[*]}\""
 	echo "search_string=\"${search_string}\""
 	echo "--------"
 	echo "with_filename=\"${with_filename}\""
@@ -120,21 +124,22 @@ fi
 for file in "${file_list[@]}"; do
 	# Using $(file) is possible as well and it is properly implemented but commented out in the follwing code block
 	ext=${file##*.} #ext=$(file -L -p -b ${file}) && ext=${ext%% *}
+	grep_exit_code=0
 	case "$ext" in
 		odt|ods|odp|sxi) #OpenDocument)
 			# An odf file (Open Document Format e.g. odt) is simply a zipped folder in which content.xml contains the actual text in xml in format
 			# The sed command removes any content in between angle brackets ('<' and '>'), it is not an ideal solution but it gets the job done
-			text=$(unzip -p "${file}" content.xml | xmllint --nowarning --format - | sed 's/<[^>]*>//g' | ${GREPBIN} --color=always ${grep_parms[@]} "${search_string}");;
+			text=$(unzip -p "${file}" content.xml | xmllint --nowarning --format - | sed 's/<[^>]*>//g' | ${GREPBIN} --color=always "${grep_parms[@]}" "${search_string}") || grep_exit_code=$?;;
 		pdf) #PDF)
 			# pdftotext and pdfinfo is provided by poppler which should be isntalled if either cups, evince, libreoffice etc. is
 			# Search through the properties of a pdf file and the content
-			text=$(pdfinfo "${file}" | head -n6 | ${GREPBIN} --color=always ${grep_parms[@]} "${search_string}")
-			text=${text}$(pdftotext -q "${file}" - | ${GREPBIN} --color=always ${grep_parms[@]} "${search_string}");;
+			text=$(pdfinfo "${file}" | head -n6 | ${GREPBIN} --color=always "${grep_parms[@]}" "${search_string}") || true
+			text=${text}$(pdftotext -q "${file}" - | ${GREPBIN} --color=always "${grep_parms[@]}" "${search_string}") || grep_exit_code=$?;;
 		*)
-			text=$(${GREPBIN} --color=always ${grep_parms[@]} "${search_string}" "${file}");;
+			text=$(${GREPBIN} --color=always "${grep_parms[@]}" "${search_string}" "${file}") || grep_exit_code=$?;;
 	esac
-	# Break if grep reports an error - This must be executed immediately after grep!
-	[[ $? -eq 2 ]] && exit 2
+	# Break if grep reports an error
+	[[ ${grep_exit_code} -eq 2 ]] && exit 2
 
 	# Exit cleanly if at any point some text was found
 	[[ -n "${text}" ]] && exit_code=0
