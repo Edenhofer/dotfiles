@@ -12,6 +12,7 @@ set -e
 ALL_OFF="$(tput sgr0)"
 BOLD="$(tput bold)"
 BLUE="${BOLD}$(tput setaf 4)"
+QUIET="${QUIET:-""}"
 msg() {
 	(( QUIET )) && return
 	local mesg=$1; shift
@@ -60,35 +61,35 @@ else
 fi
 
 # Pass additional arguments on to tar
-[[ -z $2 ]] && params="${*:2}" || params="${*:3}"
+[[ -z $2 ]] && params=("${@:2}") || params=("${@:3}")
 
 # Extract file
 filename=$(basename "$1")
 case "${filename##*.}" in
 	tar)
 		msg "Extracting $1 to $DESTDIR: (uncompressed tar)"
-		tar xf "$1" -C "$DESTDIR" ${params};;
+		tar xf "$1" -C "$DESTDIR" "${params[@]}";;
 	gz)
 		msg "Extracting $1 to $DESTDIR: (gzip compressed tar)"
-		tar xfz "$1" -C "$DESTDIR" ${params};;
+		tar xfz "$1" -C "$DESTDIR" "${params[@]}";;
 	tgz)
 		msg "Extracting $1 to $DESTDIR: (gzip compressed tar)"
-		tar xfz "$1" -C "$DESTDIR" ${params};;
+		tar xfz "$1" -C "$DESTDIR" "${params[@]}";;
 	xz)
 		msg "Extracting  $1 to $DESTDIR: (xz compressed tar)"
-		tar xfJ "$1" -C "$DESTDIR" ${params};;
+		tar xfJ "$1" -C "$DESTDIR" "${params[@]}";;
 	bz2)
 		msg "Extracting $1 to $DESTDIR: (bzip compressed tar)"
-		tar xfj "$1" -C "$DESTDIR" ${params};;
+		tar xfj "$1" -C "$DESTDIR" "${params[@]}";;
 	zip)
 		msg "Extracting $1 to $DESTDIR: (zip compressed file)"
-		unzip "$1" -d "$DESTDIR" ${params};;
+		unzip "$1" -d "$DESTDIR" "${params[@]}";;
 	rar)
 		msg "Extracting $1 to $DESTDIR: (rar compressed file)"
-		unrar x "$1" "$DESTDIR" ${params};;
+		unrar x "$1" "$DESTDIR" "${params[@]}";;
 	7z)
 		msg "Extracting $1 to $DESTDIR: (7zip compressed file)"
-		7za e "$1" -o"$DESTDIR" ${params};;
+		7za e "$1" -o"$DESTDIR" "${params[@]}";;
 	*)
 		msg "Unknown archieve format!"
 		exit 5;;
