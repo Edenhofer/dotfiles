@@ -88,7 +88,7 @@ case "${1:-}" in
 		;;
 	*)
 		# Start a socks proxy via ssh
-		ssh "${1}" -TND 9066 &
+		ssh "${@}" -TND 9066 &
 		socks_pid=$!
 		sleep 0.3
 
