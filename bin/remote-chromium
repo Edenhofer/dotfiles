@@ -68,8 +68,8 @@ case "${1:-}" in
 		fi
 
 		# Print some information about the new IP address and chromium configuration
-		curl -s --preprox socks5://localhost:9050 ipecho.net/plain 2>&1 | sed -n 's/^\([0-9\.:]*\).*$/fake-ip: \1\n/p'
-		curl -s ipecho.net/plain 2>&1 | sed -n 's/^\([0-9\.:]*\).*$/real-ip: \1\n/p'
+		echo "fake-ip: $(curl -s --preprox socks5://localhost:9050 ipecho.net/plain 2>&1)"
+		echo "real-ip: $(curl -s ipecho.net/plain 2>&1)"
 		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
 
 		chromium_args+=(
@@ -93,8 +93,8 @@ case "${1:-}" in
 		sleep 0.3
 
 		# Print some information about the new IP address and chromium configuration
-		curl -s --preprox socks5://localhost:9066 ipecho.net/plain 2>&1 | sed -n 's/^\([0-9\.:]*\).*$/fake-ip: \1\n/p'
-		curl -s ipecho.net/plain 2>&1 | sed -n 's/^\([0-9\.:]*\).*$/real-ip: \1\n/p'
+		echo "fake-ip: $(curl -s --preprox socks5://localhost:9066 ipecho.net/plain 2>&1)"
+		echo "real-ip: $(curl -s ipecho.net/plain 2>&1)"
 		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
 
 		chromium_args+=(
