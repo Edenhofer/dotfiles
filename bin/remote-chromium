@@ -31,6 +31,19 @@ function help() {
 	EOF
 }
 
+# Lazy recursive clean up of temporary directories
+work_dir_root="${TMPDIR:-"/tmp"}/private_chromium"
+clean_up() {
+	rm -rf "${work_dir_root}".*
+	# Kill socks_pid if it is defined since this means a socks process was started previously
+	[[ -n "${socks_pid}" ]] && kill "${socks_pid}"
+
+	echo
+	exit
+}
+# Trap a normal exit as well as termination signals
+trap clean_up EXIT SIGHUP SIGINT SIGTERM
+
 # Sane starting parameters for chromium
 chromium_args=(
 	'--incognito'
@@ -98,17 +111,11 @@ if ! which chromium &>/dev/null; then
 fi
 
 # Create a temporary dir
-tmpdir=$(mktemp -q -p /tmp -t -d "private_chromium".XXX)
+tmpdir=$(mktemp -q -d "${work_dir_root}".XXX)
 chromium_args+=('--disk-cache-dir='"${tmpdir}")
 
 exit_code=0
 # Actually invoke the browser
 chromium "${chromium_args[@]}" https://check.torproject.org/ || exit_code=$?
-
-# Remove temporary dir
-rm -rf "${tmpdir}"
-
-# Kill socks_pid if it is defined meaning a socks process was started previously
-[[ -n "${socks_pid}" ]] && kill "${socks_pid}"
 
 exit "${exit_code}"
