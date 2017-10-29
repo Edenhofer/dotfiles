@@ -106,6 +106,8 @@ export LESS='-R'
 
 # Enable GPG support for various command line tools
 export GPG_TTY=$(tty)
+# Refresh gpg-agent tty in case user switches into an X session
+gpg-connect-agent updatestartuptty /bye >/dev/null
 
 # Enable autocolor for various commands through alias
 alias ls='ls --color=auto'
