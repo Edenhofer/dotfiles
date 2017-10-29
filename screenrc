@@ -39,7 +39,7 @@ screen -t SH 4
 screen 5
 screen 6
 screen 7
-screen -t weechat 8 weechat
+screen 8
 screen -t MONITORING 9 zsh -c "htop 2>/dev/null || top"
 
 # Start window numbering at 1 not 0
