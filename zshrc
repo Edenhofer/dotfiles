@@ -60,6 +60,7 @@ zstyle :compinstall filename "${HOME}/.zshrc"
 # Performance tweaks
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${HOME}/.zcompcache"
+zstyle ':completion:*' use-perl on
 # Completion colours
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 # Completion order
@@ -73,6 +74,11 @@ zstyle ':completion:*:vim:*' ignored-patterns '*.(class|o)'
 zstyle ':completion:*' menu yes select
 # Pretty completion for kill
 zstyle ':completion:*:*:kill:*' command 'ps --forest -u${USER} -o pid,%cpu,tty,cputime,cmd'
+# Provide more processes in completion of programs like killall:
+zstyle ':completion:*:processes-names' command 'ps c -u ${USER} -o command | uniq'
+compdef pkill=killall
+# List files by time when completing
+zstyle ':completion:*' file-sort time
 # Ignore same file on rm
 zstyle ':completion:*:(rm|kill|diff):*' ignore-line yes
 zstyle ':completion:*:rm:*' file-patterns '*:all-files'
@@ -85,7 +91,7 @@ zstyle ':completion:*:cd:*' ignored-patterns '(*/)#lost+found'
 # Ignore case when completing
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
-# make some stuff look better
+# Make some stuff look better
 zstyle ':completion:*:descriptions' format "- %{${fg[yellow]}%}%d%{${reset_color}%} -"
 zstyle ':completion:*:messages' format "- %{${fg[cyan]}%}%d%{${reset_color}%} -"
 zstyle ':completion:*:corrections' format "- %{${fg[yellow]}%}%d%{${reset_color}%} - (%{${fg[cyan]}%}errors %e%{${reset_color}%})"
