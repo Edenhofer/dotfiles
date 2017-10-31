@@ -43,6 +43,10 @@ setopt extendedglob			# cd search
 setopt print_exit_value		# Print non-zero exit value
 setopt hist_ignore_space	# Ignore command starting with a space
 
+setopt correct
+# Set a spelling prompt (needs `setopt correct`)
+SPROMPT="${SHELL}: Correct ${fg[red]}%R${reset_color} to ${fg[green]}%r${reset_color} ? ([Y]es/[N]o/[E]dit/[A]bort) "
+
 unsetopt beep
 unsetopt auto_remove_slash
 
