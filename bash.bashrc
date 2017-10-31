@@ -5,8 +5,8 @@
 set -o vi
 
 # Changing dircolors
-[[ -f $HOME/.dircolors ]] && eval "$(dircolors -b "$HOME/.dircolors")"
-[[ -f $HOME/.dircolors_256 ]] && eval "$(dircolors -b "$HOME/.dircolors_256")"
+[[ -f ${HOME}/.dircolors ]] && eval "$(dircolors -b "${HOME}/.dircolors")"
+[[ -f ${HOME}/.dircolors_256 ]] && eval "$(dircolors -b "${HOME}/.dircolors_256")"
 
 # PS1 configuration
 _blue='\[\e[1;38;5;33m\]'
@@ -76,10 +76,10 @@ export LESS='-i -n -w -M -R -P%t?f%f \
 :stdin .?pb%pb\%:?lbLine %lb:?bbByte %bb:-...'
 
 # Extending the PATH
-[[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:$PATH"
-[[ -d "$HOME/c" ]] && export PATH="$HOME/c:$PATH"
-[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
-export PATH="$PATH:."
+[[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:${PATH}"
+[[ -d "${HOME}/c" ]] && export PATH="${HOME}/c:${PATH}"
+[[ -d "${HOME}/bin" ]] && export PATH="${HOME}/bin:${PATH}"
+export PATH="${PATH}:."
 
 # Speed up switching to vim mode
 export KEYTIMEOUT=1 # Lower recognition threshold to 10ms for key sequences
@@ -96,13 +96,13 @@ command_not_found_handler() {
 
 	set +o verbose
 
-	pkgs=(${(f)"$(pkgfile -b -v -- "$cmd" 2>/dev/null)"})
+	pkgs=(${(f)"$(pkgfile -b -v -- "${cmd}" 2>/dev/null)"})
 	if [[ -n "${pkgs[*]}" ]]; then
-		printf '%s may be found in the following packages:\n' "$cmd"
+		printf '%s may be found in the following packages:\n' "${cmd}"
 		printf '  %s\n' "${pkgs[@]}"
 		return 0
 	else
-		>&2 printf "${SHELL}: command not found: %s\n" "$cmd"
+		>&2 printf "${SHELL}: command not found: %s\n" "${cmd}"
 		return 127
 	fi
 }
@@ -258,7 +258,7 @@ swap() {
 	[[ ! -e "$1" ]] && echo "swap: $1 does not exist" && return 1
 	[[ ! -e "$2" ]] && echo "swap: $2 does not exist" && return 1
 
-	mv "$1" "$TMPFILE"
+	mv "$1" "${TMPFILE}"
 	mv "$2" "$1"
-	mv "$TMPFILE" "$2"
+	mv "${TMPFILE}" "$2"
 }

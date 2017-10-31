@@ -22,7 +22,7 @@ bindkey '\ee' edit-command-line
 # }}}
 
 # History configuration {{{
-HISTFILE="$HOME/.zsh_history"
+HISTFILE="${HOME}/.zsh_history"
 HISTSIZE=1000000
 SAVEHIST="${HISTSIZE}"
 
@@ -55,11 +55,11 @@ alias mmv='noglob zmv -W'
 autoload -Uz compinit
 compinit
 
-zstyle :compinstall filename "$HOME/.zshrc"
+zstyle :compinstall filename "${HOME}/.zshrc"
 
 # Performance tweaks
 zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path "$HOME/.zcompcache"
+zstyle ':completion:*' cache-path "${HOME}/.zcompcache"
 # Completion colours
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 # Completion order
@@ -72,7 +72,7 @@ zstyle ':completion:*:vim:*' ignored-patterns '*.(class|o)'
 # Show menu when tabbing
 zstyle ':completion:*' menu yes select
 # Pretty completion for kill
-zstyle ':completion:*:*:kill:*' command 'ps --forest -u$USER -o pid,%cpu,tty,cputime,cmd'
+zstyle ':completion:*:*:kill:*' command 'ps --forest -u${USER} -o pid,%cpu,tty,cputime,cmd'
 # Ignore same file on rm
 zstyle ':completion:*:(rm|kill|diff):*' ignore-line yes
 zstyle ':completion:*:rm:*' file-patterns '*:all-files'
@@ -99,23 +99,23 @@ zstyle ':completion:*:manuals' separate-sections true
 zstyle ':completion:*:manuals.(^1*)' insert-sections true
 
 # Highlight the original input
-zstyle ':completion:*:original' list-colors "=*=$color[red];$color[bold]"
+zstyle ':completion:*:original' list-colors "=*=${color[red]};${color[bold]}"
 # Highlight words like 'esac' or 'end'
-zstyle ':completion:*:reserved-words' list-colors "=*=$color[red]"
+zstyle ':completion:*:reserved-words' list-colors "=*=${color[red]}"
 # Colorize hostname completion
-zstyle ':completion:*:*:*:*:hosts' list-colors "=*=$color[cyan];$color[bg-black]"
+zstyle ':completion:*:*:*:*:hosts' list-colors "=*=${color[cyan]};${color[bg-black]}"
 # Colorize username completion
-zstyle ':completion:*:*:*:*:users' list-colors "=*=$color[red];$color[bg-black]"
+zstyle ':completion:*:*:*:*:users' list-colors "=*=${color[red]};${color[bg-black]}"
 # Colorize processlist for 'kill'
-zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#) #([^ ]#)*=$color[none]=$color[yellow]=$color[green]"
-#}}}
+zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#) #([^ ]#)*=${color[none]}=${color[yellow]}=${color[green]}"
+# }}}
 
 # oh-my-zsh configuration {{{
 # Path to your oh-my-zsh installation
 if [[ -d /usr/share/oh-my-zsh/ ]]; then
 	ZSH=/usr/share/oh-my-zsh/
 else
-	ZSH="$HOME/.oh-my-zsh/"
+	ZSH="${HOME}/.oh-my-zsh/"
 fi
 
 # ZSH theme to load
@@ -139,21 +139,21 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 plugins=(vi-mode git dirhistory zsh-completions)
 
 # Oh-my-zsh caching
-ZSH_CACHE_DIR=$HOME/.oh-my-zsh-cache
-if [[ ! -d "$ZSH_CACHE_DIR" ]]; then
-	mkdir "$ZSH_CACHE_DIR"
+ZSH_CACHE_DIR="${HOME}/.oh-my-zsh-cache"
+if [[ ! -d "${ZSH_CACHE_DIR}" ]]; then
+	mkdir "${ZSH_CACHE_DIR}"
 fi
 
 # Initiate oh-my-zsh
-source "$ZSH/oh-my-zsh.sh"
+source "${ZSH}/oh-my-zsh.sh"
 # }}}
 
 # Loading external ZSH configuration {{{
 # ZSH syntax highlighting
 if [[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
 	source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-elif [[ -f "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
-	source "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+elif [[ -f "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+	source "${HOME}/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 # }}}
 
@@ -179,10 +179,10 @@ export LESS='-i -n -w -M -R -P%t?f%f \
 :stdin .?pb%pb\%:?lbLine %lb:?bbByte %bb:-...'
 
 # Extending the PATH
-[[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:$PATH"
-[[ -d "$HOME/c" ]] && export PATH="$HOME/c:$PATH"
-[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
-export PATH="$PATH:."
+[[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:${PATH}"
+[[ -d "${HOME}/c" ]] && export PATH="${HOME}/c:${PATH}"
+[[ -d "${HOME}/bin" ]] && export PATH="${HOME}/bin:${PATH}"
+export PATH="${PATH}:."
 
 # Speed up switching to vim mode
 export KEYTIMEOUT=1 # Lower recognition threshold to 10ms for key sequences
@@ -199,13 +199,13 @@ command_not_found_handler() {
 
 	set +o verbose
 
-	pkgs=(${(f)"$(pkgfile -b -v -- "$cmd" 2>/dev/null)"})
+	pkgs=(${(f)"$(pkgfile -b -v -- "${cmd}" 2>/dev/null)"})
 	if [[ -n "${pkgs[*]}" ]]; then
-		printf '%s may be found in the following packages:\n' "$cmd"
+		printf '%s may be found in the following packages:\n' "${cmd}"
 		printf '  %s\n' "${pkgs[@]}"
 		return 0
 	else
-		>&2 printf "${SHELL}: command not found: %s\n" "$cmd"
+		>&2 printf "${SHELL}: command not found: %s\n" "${cmd}"
 		return 127
 	fi
 }
@@ -361,7 +361,7 @@ swap() {
 	[[ ! -e "$1" ]] && echo "swap: $1 does not exist" && return 1
 	[[ ! -e "$2" ]] && echo "swap: $2 does not exist" && return 1
 
-	mv "$1" "$TMPFILE"
+	mv "$1" "${TMPFILE}"
 	mv "$2" "$1"
-	mv "$TMPFILE" "$2"
+	mv "${TMPFILE}" "$2"
 }
