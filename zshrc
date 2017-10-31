@@ -1,34 +1,121 @@
-# Lines configured by zsh-newuser-install
-HISTFILE=~/.zsh_history
-HISTSIZE=100000
-SAVEHIST=100000
-setopt noincappendhistory sharehistory appendhistory autocd extendedglob
-unsetopt beep
+# Keybindings {{{
+# Use vim keyboard bindings
 bindkey -v
-# End of lines configured by zsh-newuser-install
+# Use some of emacs' shortcuts to move around
+bindkey '\e[1~' beginning-of-line
+bindkey '\e[4~' end-of-line
+bindkey '\e[3~' delete-char
+bindkey '\e[2~' overwrite-mode
+bindkey "^[[7~" beginning-of-line	# Pos1
+bindkey "^[[8~" end-of-line			# End
+bindkey "^[[A" history-beginning-search-backward
+bindkey "^[[B" history-beginning-search-forward
 
 # Use local history for up and down keys, while preserving a global one
 bindkey "^[OA" up-line-or-beginning-search
 bindkey "^[OB" down-line-or-beginning-search
 
+# Add edit command line feature ("alt-e")
+autoload edit-command-line
+zle -N edit-command-line
+bindkey '\ee' edit-command-line
+# }}}
+
+# History configuration {{{
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=1000000
+SAVEHIST="${HISTSIZE}"
+
+# Ingore duplicates
+HISTCONTROL=erasedups
+HISTIGNORE='&:exit:logout:clear:history'
+# }}}
+
+# Miscellaneous SH and ZSH options {{{
+autoload -U colors
+colors
+
+setopt noincappendhistory
+setopt sharehistory
+setopt appendhistory
+setopt autocd				# .. -> cd ../
+setopt extendedglob			# cd search
+setopt print_exit_value		# Print non-zero exit value
+setopt hist_ignore_space	# Ignore command starting with a space
+
+unsetopt beep
+unsetopt auto_remove_slash
+
 # Load zmv - a clever mv
 autoload -U zmv
 alias mmv='noglob zmv -W'
+# }}}
 
-# Speed up switching to vim mode
-export KEYTIMEOUT=1
+# ZSH completion via zstyle {{{
+autoload -Uz compinit
+compinit
 
-# Use some of emacs' shortcuts to move around
-bindkey "^[[1~" beginning-of-line
-bindkey "^[[4~" end-of-line
-bindkey "^[[3~" delete-char
+zstyle :compinstall filename "$HOME/.zshrc"
 
-# The following lines were added by oh-my-zsh
+# Performance tweaks
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$HOME/.zcompcache"
+# Completion colours
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+# Completion order
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:match:*' original only
+# Ignore completion for commands we don't have
+zstyle ':completion:*:functions' ignored-patterns '_*'
+# Get rid of .class and .o files for vim
+zstyle ':completion:*:vim:*' ignored-patterns '*.(class|o)'
+# Show menu when tabbing
+zstyle ':completion:*' menu yes select
+# Pretty completion for kill
+zstyle ':completion:*:*:kill:*' command 'ps --forest -u$USER -o pid,%cpu,tty,cputime,cmd'
+# Ignore same file on rm
+zstyle ':completion:*:(rm|kill|diff):*' ignore-line yes
+zstyle ':completion:*:rm:*' file-patterns '*:all-files'
+# Strip duplicate slashes
+zstyle ':completion:*' squeeze-slashes true
+# Ignore current directory when cd ../<TAB>
+zstyle ':completion:*:cd:*' ignore-parents parent pwd
+# Prevent lost+found directory from being completed
+zstyle ':completion:*:cd:*' ignored-patterns '(*/)#lost+found'
+# Ignore case when completing
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# make some stuff look better
+zstyle ':completion:*:descriptions' format "- %{${fg[yellow]}%}%d%{${reset_color}%} -"
+zstyle ':completion:*:messages' format "- %{${fg[cyan]}%}%d%{${reset_color}%} -"
+zstyle ':completion:*:corrections' format "- %{${fg[yellow]}%}%d%{${reset_color}%} - (%{${fg[cyan]}%}errors %e%{${reset_color}%})"
+zstyle ':completion:*:default' select-prompt "%{${fg[yellow]}%}Match %{${fg_bold[cyan]}%}%m%{${fg_no_bold[yellow]}%}  Line %{${fg_bold[cyan]}%}%l%{${fg_no_bold[red]}%}  %p%{${reset_color}%}"
+zstyle ':completion:*:default' list-prompt "%{${fg[yellow]}%}Line %{${fg_bold[cyan]}%}%l%{${fg_no_bold[yellow]}%}  Continue?%{${reset_color}%}"
+zstyle ':completion:*:warnings' format "- %{${fg_no_bold[red]}%}no match%{${reset_color}%} - %{${fg_no_bold[yellow]}%}%d%{${reset_color}%}"
+zstyle ':completion:*' group-name ''
+
+# Sort manual pages into sections
+zstyle ':completion:*:manuals' separate-sections true
+zstyle ':completion:*:manuals.(^1*)' insert-sections true
+
+# Highlight the original input
+zstyle ':completion:*:original' list-colors "=*=$color[red];$color[bold]"
+# Highlight words like 'esac' or 'end'
+zstyle ':completion:*:reserved-words' list-colors "=*=$color[red]"
+# Colorize hostname completion
+zstyle ':completion:*:*:*:*:hosts' list-colors "=*=$color[cyan];$color[bg-black]"
+# Colorize username completion
+zstyle ':completion:*:*:*:*:users' list-colors "=*=$color[red];$color[bg-black]"
+# Colorize processlist for 'kill'
+zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#) #([^ ]#)*=$color[none]=$color[yellow]=$color[green]"
+#}}}
+
+# oh-my-zsh configuration {{{
 # Path to your oh-my-zsh installation
 if [[ -d /usr/share/oh-my-zsh/ ]]; then
 	ZSH=/usr/share/oh-my-zsh/
 else
-	ZSH=~/.oh-my-zsh/
+	ZSH="$HOME/.oh-my-zsh/"
 fi
 
 # ZSH theme to load
@@ -41,31 +128,14 @@ else
 	ZSH_THEME="robbyrussell" # Plain and simple
 fi
 
-# Uncomment the following line to use hyphen-insensitive completion. Case
-# sensitive completion must be off. _ and - will be interchangeable.
-#HYPHEN_INSENSITIVE="true"
-
 # Disable bi-weekly auto-update checks of oh-my-zsh
 DISABLE_AUTO_UPDATE="true"
 
-## Uncomment the following line to enable command auto-correction.
-#ENABLE_CORRECTION="true"s
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
+# Disable marking untracked VCS files as dirty (speed up repository checks)
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 
-# Change the command execution time stamp shown in the history command output.
-# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-#HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
 plugins=(vi-mode git dirhistory zsh-completions)
 
 # Oh-my-zsh caching
@@ -75,19 +145,52 @@ if [[ ! -d "$ZSH_CACHE_DIR" ]]; then
 fi
 
 # Initiate oh-my-zsh
-source $ZSH/oh-my-zsh.sh
-# End of lines added by oh-my-zsh
+source "$ZSH/oh-my-zsh.sh"
+# }}}
 
-# Syntax highlighting
+# Loading external ZSH configuration {{{
+# ZSH syntax highlighting
 if [[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
 	source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-elif [[ -f ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
-	source ~/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+elif [[ -f "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+	source "$HOME/.zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
+# }}}
 
-# Ingore duplicates
-HISTCONTROL=erasedups
-HISTIGNORE='&:exit:logout:clear:history'
+
+# --- # Shell agnostic configuration
+
+# Export the default ditor
+if which vim &>/dev/null; then
+	export EDITOR="vim"
+elif which vi &>/dev/null; then
+	export EDITOR="vi"
+elif which emacs &>/dev/null; then
+	export EDITOR="emacs -nw"
+else
+	export EDITOR="nano"
+fi
+export VISUAL="${EDITOR}"
+
+# Pretty less
+export PAGER=less
+export LESSCHARSET="UTF-8"
+export LESS='-i -n -w -M -R -P%t?f%f \
+:stdin .?pb%pb\%:?lbLine %lb:?bbByte %bb:-...'
+
+# Extending the PATH
+[[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:$PATH"
+[[ -d "$HOME/c" ]] && export PATH="$HOME/c:$PATH"
+[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
+export PATH="$PATH:."
+
+# Speed up switching to vim mode
+export KEYTIMEOUT=1 # Lower recognition threshold to 10ms for key sequences
+
+# Enable GPG support for various command line tools
+export GPG_TTY=$(tty)
+# Refresh gpg-agent tty in case user switches into an X session
+gpg-connect-agent updatestartuptty /bye >/dev/null
 
 # 'Command not found' completion
 command_not_found_handler() {
@@ -106,31 +209,6 @@ command_not_found_handler() {
 		return 127
 	fi
 }
-
-# Extending the PATH
-[[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:$PATH"
-[[ -d "$HOME/c" ]] && export PATH="$HOME/c:$PATH"
-[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
-export PATH="$PATH:."
-
-# Export the default ditor
-if which vim &>/dev/null; then
-	export EDITOR="vim"
-elif which vi &>/dev/null; then
-	export EDITOR="vi"
-elif which emacs &>/dev/null; then
-	export EDITOR="emacs -nw"
-else
-	export EDITOR="nano"
-fi
-
-# Colorful less
-export LESS='-R'
-
-# Enable GPG support for various command line tools
-export GPG_TTY=$(tty)
-# Refresh gpg-agent tty in case user switches into an X session
-gpg-connect-agent updatestartuptty /bye >/dev/null
 
 # Enable autocolor for various commands through alias
 alias ls='ls --color=auto'
@@ -219,9 +297,6 @@ if which pacman &>/dev/null; then
 	fi
 fi
 
-# Arch Build System (abs) sudo alias
-which abs &>/dev/null && [[ $UID -ne 0 ]] && alias abs='sudo abs'
-
 # Support netctl commands if available
 if which netctl &>/dev/null; then
 	if [[ $UID -ne 0 ]]; then
@@ -238,9 +313,9 @@ alias fl='find . -type l -exec ls --color=auto -lh {} \;'
 # Metasploit Framework
 # Quiet disables ASCII banner and -x ... auto-connects to msf postgresql database owned by ${USER}
 if which msfconsole systemctl &>/dev/null; then
-	alias msfconsole="start postgresql && msfconsole --quiet -x \"db_connect ${USER}@msf\""
+	alias msfconsole='start postgresql && msfconsole --quiet -x "db_connect ${USER}@msf"'
 elif which msfconsole &>/dev/null; then
-	alias msfconsole="msfconsole --quiet -x \"db_connect ${USER}@msf\""
+	alias msfconsole='msfconsole --quiet -x "db_connect ${USER}@msf"'
 fi
 
 # Enable fuck support if present

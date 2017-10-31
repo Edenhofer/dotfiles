@@ -1,12 +1,3 @@
-#
-# Custom bash.bashrc file for the GNU Bourne-Again SHell
-# by Gordian Edenhofer
-#
-# Based on multiple sources with constant tweaking.
-#
-# Keep it simple, stupid (KISS)
-#
-
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
@@ -14,8 +5,8 @@
 set -o vi
 
 # Changing dircolors
-[[ -f $HOME/.dircolors ]] && eval $(dircolors -b $HOME/.dircolors)
-[[ -f $HOME/.dircolors_256 ]] && eval $(dircolors -b $HOME/.dircolors_256)
+[[ -f $HOME/.dircolors ]] && eval "$(dircolors -b "$HOME/.dircolors")"
+[[ -f $HOME/.dircolors_256 ]] && eval "$(dircolors -b "$HOME/.dircolors_256")"
 
 # PS1 configuration
 _blue='\[\e[1;38;5;33m\]'
@@ -54,9 +45,6 @@ complete -cf watch
 [[ -f /usr/share/git/completion/git-completion.bash ]] && source /usr/share/git/completion/git-completion.bash
 [[ -f /usr/share/doc/pkgfile/command-not-found.bash ]] && source /usr/share/doc/pkgfile/command-not-found.bash
 
-# CDPATH lets you quickly switch directories
-#[[ -d "$HOME/Projects" ]] && export CDPATH=".:$HOME:$HOME/Projects" || export CDPATH=".:$HOME"
-
 # Shell history
 export HISTSIZE=5000              # bash history will save N commands
 export HISTFILESIZE=${HISTSIZE}   # bash will remember N commands
@@ -65,6 +53,41 @@ export HISTTIMEFORMAT="%d. %h %H:%M:%S> "    # add timestamps to each command
 # Ingore duplicates
 HISTCONTROL=erasedups
 HISTIGNORE='&:exit:logout:clear:history'
+
+
+# --- # Shell agnostic configuration
+
+# Export the default ditor
+if which vim &>/dev/null; then
+	export EDITOR="vim"
+elif which vi &>/dev/null; then
+	export EDITOR="vi"
+elif which emacs &>/dev/null; then
+	export EDITOR="emacs -nw"
+else
+	export EDITOR="nano"
+fi
+export VISUAL="${EDITOR}"
+
+# Pretty less
+export PAGER=less
+export LESSCHARSET="UTF-8"
+export LESS='-i -n -w -M -R -P%t?f%f \
+:stdin .?pb%pb\%:?lbLine %lb:?bbByte %bb:-...'
+
+# Extending the PATH
+[[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:$PATH"
+[[ -d "$HOME/c" ]] && export PATH="$HOME/c:$PATH"
+[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
+export PATH="$PATH:."
+
+# Speed up switching to vim mode
+export KEYTIMEOUT=1 # Lower recognition threshold to 10ms for key sequences
+
+# Enable GPG support for various command line tools
+export GPG_TTY=$(tty)
+# Refresh gpg-agent tty in case user switches into an X session
+gpg-connect-agent updatestartuptty /bye >/dev/null
 
 # 'Command not found' completion
 command_not_found_handler() {
@@ -83,31 +106,6 @@ command_not_found_handler() {
 		return 127
 	fi
 }
-
-# Extending the PATH
-[[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:$PATH"
-[[ -d "$HOME/c" ]] && export PATH="$HOME/c:$PATH"
-[[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
-export PATH="$PATH:."
-
-# Export the default ditor
-if which vim &>/dev/null; then
-	export EDITOR="vim"
-elif which vi &>/dev/null; then
-	export EDITOR="vi"
-elif which emacs &>/dev/null; then
-	export EDITOR="emacs -nw"
-else
-	export EDITOR="nano"
-fi
-
-# Colorful less
-export LESS='-R'
-
-# Enable GPG support for various command line tools
-export GPG_TTY=$(tty)
-# Refresh gpg-agent tty in case user switches into an X session
-gpg-connect-agent updatestartuptty /bye >/dev/null
 
 # Enable autocolor for various commands through alias
 alias ls='ls --color=auto'
@@ -196,9 +194,6 @@ if which pacman &>/dev/null; then
 	fi
 fi
 
-# Arch Build System (abs) sudo alias
-which abs &>/dev/null && [[ $UID -ne 0 ]] && alias abs='sudo abs'
-
 # Support netctl commands if available
 if which netctl &>/dev/null; then
 	if [[ $UID -ne 0 ]]; then
@@ -215,9 +210,9 @@ alias fl='find . -type l -exec ls --color=auto -lh {} \;'
 # Metasploit Framework
 # Quiet disables ASCII banner and -x ... auto-connects to msf postgresql database owned by ${USER}
 if which msfconsole systemctl &>/dev/null; then
-	alias msfconsole="start postgresql && msfconsole --quiet -x \"db_connect ${USER}@msf\""
+	alias msfconsole='start postgresql && msfconsole --quiet -x "db_connect ${USER}@msf"'
 elif which msfconsole &>/dev/null; then
-	alias msfconsole="msfconsole --quiet -x \"db_connect ${USER}@msf\""
+	alias msfconsole='msfconsole --quiet -x "db_connect ${USER}@msf"'
 fi
 
 # Enable fuck support if present
