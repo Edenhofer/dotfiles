@@ -120,42 +120,54 @@ zstyle ':completion:*:*:*:*:users' list-colors "=*=${color[red]};${color[bg-blac
 zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#) #([^ ]#)*=${color[none]}=${color[yellow]}=${color[green]}"
 # }}}
 
-# oh-my-zsh configuration {{{
-# Path to your oh-my-zsh installation
-if [[ -d /usr/share/oh-my-zsh/ ]]; then
-	ZSH=/usr/share/oh-my-zsh/
+# Configure oh-my-zsh if present and fall back to a custom prompt if not {{{
+if [[ -d /usr/share/oh-my-zsh/ || -d "${HOME}/.oh-my-zsh/" ]]; then
+	# Path to an oh-my-zsh installation
+	if [[ -d /usr/share/oh-my-zsh/ ]]; then
+		ZSH=/usr/share/oh-my-zsh/
+	else
+		ZSH="${HOME}/.oh-my-zsh/"
+	fi
+
+	# ZSH theme to load
+	# Use a different theme for ssh sessions, containers and local
+	if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
+		ZSH_THEME="agnoster" # Fancy and colorful
+	elif systemd-detect-virt &>/dev/null; then
+		ZSH_THEME="agnoster" # Fancy and colorful
+	else
+		ZSH_THEME="robbyrussell" # Plain and simple
+	fi
+
+	# Disable bi-weekly auto-update checks of oh-my-zsh
+	DISABLE_AUTO_UPDATE="true"
+
+	# Disable marking untracked VCS files as dirty (speed up repository checks)
+	DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+	# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
+	# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+	plugins=(vi-mode git dirhistory zsh-completions)
+
+	# Oh-my-zsh caching
+	ZSH_CACHE_DIR="${HOME}/.oh-my-zsh-cache"
+	if [[ ! -d "${ZSH_CACHE_DIR}" ]]; then
+		mkdir "${ZSH_CACHE_DIR}"
+	fi
+
+	# Initiate oh-my-zsh
+	source "${ZSH}/oh-my-zsh.sh"
 else
-	ZSH="${HOME}/.oh-my-zsh/"
+	# Configure a fallback prompt
+	if (( UID != 0 )); then
+	  username_color="%F{blue}"
+	else
+	  username_color="%F{red}"
+	fi
+	host_color="%F{green}"
+	path_color="%F{blue}"
+	PROMPT="${username_color}$USERNAME%f@${host_color}%B%m%b%f ${path_color}%B%~%b%f > "
 fi
-
-# ZSH theme to load
-# Use a different theme for ssh sessions, containers and local
-if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
-	ZSH_THEME="agnoster" # Fancy and colorful
-elif systemd-detect-virt &>/dev/null; then
-	ZSH_THEME="agnoster" # Fancy and colorful
-else
-	ZSH_THEME="robbyrussell" # Plain and simple
-fi
-
-# Disable bi-weekly auto-update checks of oh-my-zsh
-DISABLE_AUTO_UPDATE="true"
-
-# Disable marking untracked VCS files as dirty (speed up repository checks)
-DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-plugins=(vi-mode git dirhistory zsh-completions)
-
-# Oh-my-zsh caching
-ZSH_CACHE_DIR="${HOME}/.oh-my-zsh-cache"
-if [[ ! -d "${ZSH_CACHE_DIR}" ]]; then
-	mkdir "${ZSH_CACHE_DIR}"
-fi
-
-# Initiate oh-my-zsh
-source "${ZSH}/oh-my-zsh.sh"
 # }}}
 
 # Loading external ZSH configuration {{{
