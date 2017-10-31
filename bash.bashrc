@@ -19,7 +19,7 @@ _violet='\[\e[1;38;5;93m\]'
 _red='\[\e[1;38;5;1m\]'
 _orange='\[\e[1;38;5;214m\]'
 _no_color='\[\e[0m\]'
-if [[ $UID == 0 ]]; then
+if (( UID != 0 )); then
 	# '\${?#"0"}' can be used to display the last return code
 	PS1="${_grey}[${_red}\u${_another_grey}@${_another_grey}\h${_another_grey}:${_blue}\W${_another_grey}]${_no_color}# "
 else
@@ -138,7 +138,7 @@ alias port='ss -tulanp'
 alias genpasswd="strings /dev/urandom | head -n 30 | tr -d '\n' | tr -d '[[:space:]]'; echo"
 
 # Create sudo aliases for various commands
-if [[ $UID -ne 0 ]]; then
+if (( UID != 0 )); then
 	alias scat='sudo cat'
 	alias svi='sudo vi'
 	alias svim='sudo vim'
@@ -153,7 +153,7 @@ fi
 
 # Create shortcuts and sudo aliases for systemd
 if which systemctl &>/dev/null; then
-	if [[ $UID -ne 0 ]]; then
+	if (( UID != 0 )); then
 		alias start='sudo systemctl start'
 		alias restart='sudo systemctl restart'
 		alias stop='sudo systemctl stop'
@@ -173,7 +173,7 @@ fi
 
 # Pacman support
 if which pacman &>/dev/null; then
-	if [[ $UID -ne 0 ]]; then
+	if (( UID != 0 )); then
 		alias pacman='sudo pacman'
 		alias mkinitcpio='sudo mkinitcpio'
 		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
@@ -192,7 +192,7 @@ fi
 
 # Support netctl commands if available
 if which netctl &>/dev/null; then
-	if [[ $UID -ne 0 ]]; then
+	if (( UID != 0 )); then
 		alias netctl='sudo netctl'
 		alias netctl-auto='sudo netctl-auto'
 		alias wifi-menu='sudo wifi-menu'
