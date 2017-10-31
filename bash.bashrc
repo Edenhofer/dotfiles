@@ -157,15 +157,11 @@ if which systemctl &>/dev/null; then
 		alias start='sudo systemctl start'
 		alias restart='sudo systemctl restart'
 		alias stop='sudo systemctl stop'
-		alias enable='sudo systemctl enable'
-		alias disable='sudo systemctl disable'
 		alias daemon-reload='sudo systemctl daemon-reload'
 	else
 		alias start='systemctl start'
 		alias restart='systemctl restart'
 		alias stop='systemctl stop'
-		alias enable='systemctl enable'
-		alias disable='systemctl disable'
 		alias daemon-reload='systemctl daemon-reload'
 	fi
 
