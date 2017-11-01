@@ -34,7 +34,7 @@ function help() {
 	    # $myname user@host
 
 	Copyright (c) Gordian Edenhofer <gordian.edenhofer@gmail.com>
-	The script requires chromium, bash>=4.2, ssh and sudo.
+	The script requires chromium, bash>=4.2, ssh, sudo and unzip.
 	EOF
 }
 
@@ -52,7 +52,6 @@ trap clean_up EXIT SIGHUP SIGINT SIGTERM
 
 # Sane starting parameters for chromium
 chromium_args=(
-	'--incognito'
 	# Disable flash for sure
 	'--disable-plugins-discovery'
 	'--disable-internal-flash'
@@ -62,6 +61,13 @@ chromium_args=(
 # Check for trackability at
 # https://panopticlick.eff.org/results?#fingerprintTable
 # http://uniquemachine.org/
+
+# Sensible extensions to have upon first startup
+chromium_extensions=(
+	'cjpalhdlnbpafiamejdnhcphjbkeiagm'	# uBlock Origin
+	'nffaoalbilbmmfgbnbgppjihopabppdk'	# Video Speed Control
+	'dbepggeogbaibhgnhhndojpepiihcmeb'	# Vimium
+)
 
 
 # Simple and stupid argument check since only one argument can be passed
@@ -107,6 +113,15 @@ fi
 
 # Create a temporary dir for the nobody user
 tmpdir=$(${SUDO_CMD} mktemp -q -d "${TMPDIR:-"/tmp"}/private_chromium".XXX)
+
+# Add chromium extensions
+for i in "${chromium_extensions[@]}"; do
+	${SUDO_CMD} curl -s -o "${tmpdir}/${i}.crx" -L "https://clients2.google.com/service/update2/crx?response=redirect&prodversion=$(chromium --product-version)&x=id%3D${i}%26uc"
+	${SUDO_CMD} unzip "${tmpdir}/${i}.crx" -d "${tmpdir}/${i}" && true
+	${SUDO_CMD} chmod -R u+x "${tmpdir}/${i}"
+	ext="${tmpdir}/${i},${ext:-""}"
+done
+[[ -n "${ext:-""}" ]] && chromium_args+=('--load-extension='"${ext}")
 
 # Grant access to the X server
 xhost local:root
