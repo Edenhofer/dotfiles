@@ -9,6 +9,11 @@ set -e
 myname=$(basename "$0")
 myversion=1.0.0
 
+# Useful global parameters
+SSH_SOCKS_PORT="${SSH_SOCKS_PORT:-"9066"}"
+UNPRIV_USER="${UNPRIV_USER:-"nobody"}"
+SUDO_CMD="${SUDO_CMD:-"sudo -u ${UNPRIV_USER} --"}"
+
 # Help function, no arguments required
 function help() {
 	cat <<-EOF
@@ -33,9 +38,9 @@ function help() {
 
 # Lazy recursive clean up of temporary directories
 function clean_up() {
-	[[ -n "${tmpdir}" ]] && rm -rf "${tmpdir}"
+	[[ -n "${tmpdir:-""}" ]] && ${SUDO_CMD} rm -rf "${tmpdir}"
 	# Kill socks_pid if it is defined since this means a socks process was started previously
-	[[ -n "${socks_pid}" ]] && kill "${socks_pid}"
+	[[ -n "${socks_pid:-""}" ]] && kill "${socks_pid}"
 
 	echo
 	exit
@@ -87,7 +92,7 @@ case "${1:-}" in
 		;;
 	*)
 		# Start a socks proxy via ssh
-		ssh "${@}" -TND 9066 & socks_pid=$!
+		ssh "${@}" -TND "${SSH_SOCKS_PORT}" & socks_pid=$!
 		sleep 0.3
 
 		# Print some information about the new IP address and chromium configuration
@@ -108,12 +113,13 @@ if ! which chromium &>/dev/null; then
 	exit 1
 fi
 
-# Create a temporary dir
-tmpdir=$(mktemp -q -d "${TMPDIR:-"/tmp"}/private_chromium".XXX)
-chromium_args+=('--disk-cache-dir='"${tmpdir}")
+# Create a temporary dir for the nobody user
+tmpdir=$(${SUDO_CMD} mktemp -q -d "${TMPDIR:-"/tmp"}/private_chromium".XXX)
 
-exit_code=0
+# Grant access to the X server
+xhost local:root
 # Actually invoke the browser
-chromium "${chromium_args[@]}" https://check.torproject.org/ || exit_code=$?
+${SUDO_CMD} env -i DISPLAY="${DISPLAY}" HOME="${tmpdir}" \
+	chromium "${chromium_args[@]}" https://check.torproject.org/ || exit_code=$?
 
-exit "${exit_code}"
+exit "${exit_code:-"0"}"
