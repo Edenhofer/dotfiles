@@ -32,7 +32,7 @@ function help() {
 	    # $myname user@host
 
 	Copyright (c) Gordian Edenhofer <gordian.edenhofer@gmail.com>
-	The script requires chromium, bash>=4.2 and curl.
+	The script requires chromium, bash>=4.2, ssh and sudo.
 	EOF
 }
 
