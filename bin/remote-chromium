@@ -32,7 +32,7 @@ function help() {
 }
 
 # Lazy recursive clean up of temporary directories
-clean_up() {
+function clean_up() {
 	[[ -n "${tmpdir}" ]] && rm -rf "${tmpdir}"
 	# Kill socks_pid if it is defined since this means a socks process was started previously
 	[[ -n "${socks_pid}" ]] && kill "${socks_pid}"
@@ -67,7 +67,7 @@ case "${1:-}" in
 		fi
 
 		# Print some information about the new IP address and chromium configuration
-		echo "fake-ip: $(curl -s --preprox socks5://localhost:9050 ipecho.net/plain 2>&1)"
+		echo "fake-ip: $(curl -s --preproxy socks5://localhost:9050 ipecho.net/plain 2>&1)"
 		echo "real-ip: $(curl -s ipecho.net/plain 2>&1)"
 		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
 
@@ -87,12 +87,11 @@ case "${1:-}" in
 		;;
 	*)
 		# Start a socks proxy via ssh
-		ssh "${@}" -TND 9066 &
-		socks_pid=$!
+		ssh "${@}" -TND 9066 & socks_pid=$!
 		sleep 0.3
 
 		# Print some information about the new IP address and chromium configuration
-		echo "fake-ip: $(curl -s --preprox socks5://localhost:9066 ipecho.net/plain 2>&1)"
+		echo "fake-ip: $(curl -s --preproxy socks5://localhost:9066 ipecho.net/plain 2>&1)"
 		echo "real-ip: $(curl -s ipecho.net/plain 2>&1)"
 		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
 
