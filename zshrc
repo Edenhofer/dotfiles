@@ -260,7 +260,7 @@ alias meminfo='free -m -l -t'
 alias intercept='sudo strace -ff -e trace=write -e write=1,2 -p'
 alias listen='lsof -P -i -n'
 alias port='ss -tulanp'
-alias genpasswd="strings /dev/urandom | head -n 30 | tr -d '\n' | tr -d '[[:space:]]'; echo"
+alias genpasswd="openssl rand -base64 128"
 
 # Create sudo aliases for various commands
 if (( UID != 0 )); then
