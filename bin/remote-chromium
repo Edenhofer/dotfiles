@@ -22,6 +22,8 @@ function help() {
 	various command line flags in order to disguise the user's location and to
 	hide identifiable information.
 
+	In order to hear sound you must confiure pulseaudio accordingly, e.g. using `paprefs`.
+
 	Usage: $myname <PROXY>
 	    --help              Display this help message and exit
 
@@ -108,6 +110,10 @@ tmpdir=$(${SUDO_CMD} mktemp -q -d "${TMPDIR:-"/tmp"}/private_chromium".XXX)
 
 # Grant access to the X server
 xhost local:root
+# Furthermore you have to grant access to your pulseaudio session
+# in order to hear sound. Do so by e.g. using `pulseaudio`.
+# This is due the fact that `chromium` is running under a different user.
+
 # Actually invoke the browser
 ${SUDO_CMD} env -i DISPLAY="${DISPLAY}" HOME="${tmpdir}" \
 	chromium "${chromium_args[@]}" https://check.torproject.org/ || exit_code=$?
