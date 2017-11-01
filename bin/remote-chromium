@@ -117,8 +117,8 @@ tmpdir=$(${SUDO_CMD} mktemp -q -d "${TMPDIR:-"/tmp"}/private_chromium".XXX)
 # Add chromium extensions
 for i in "${chromium_extensions[@]}"; do
 	${SUDO_CMD} curl -s -o "${tmpdir}/${i}.crx" -L "https://clients2.google.com/service/update2/crx?response=redirect&prodversion=$(chromium --product-version)&x=id%3D${i}%26uc"
-	${SUDO_CMD} unzip "${tmpdir}/${i}.crx" -d "${tmpdir}/${i}" && true
-	${SUDO_CMD} chmod -R u+x "${tmpdir}/${i}"
+	${SUDO_CMD} unzip -q "${tmpdir}/${i}.crx" -d "${tmpdir}/${i}" && true
+	${SUDO_CMD} find "${tmpdir}/${i}" -type d -exec chmod u+x {} \;
 	ext="${tmpdir}/${i},${ext:-""}"
 done
 [[ -n "${ext:-""}" ]] && chromium_args+=('--load-extension='"${ext}")
