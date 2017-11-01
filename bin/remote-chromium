@@ -40,7 +40,7 @@ function help() {
 
 # Lazy recursive clean up of temporary directories
 function clean_up() {
-	[[ -n "${tmpdir:-""}" ]] && ${SUDO_CMD} rm -rf "${tmpdir}"
+	[[ -n "${tmpdir:-""}" ]] && ${SUDO_CMD} find "${tmpdir}" -type d -exec chmod u+x {} \; && ${SUDO_CMD} rm -rf "${tmpdir}"
 	# Kill socks_pid if it is defined since this means a socks process was started previously
 	[[ -n "${socks_pid:-""}" ]] && kill "${socks_pid}"
 
