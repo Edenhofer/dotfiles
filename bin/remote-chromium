@@ -32,9 +32,8 @@ function help() {
 }
 
 # Lazy recursive clean up of temporary directories
-work_dir_root="${TMPDIR:-"/tmp"}/private_chromium"
 clean_up() {
-	rm -rf "${work_dir_root}".*
+	[[ -n "${tmpdir}" ]] && rm -rf "${tmpdir}"
 	# Kill socks_pid if it is defined since this means a socks process was started previously
 	[[ -n "${socks_pid}" ]] && kill "${socks_pid}"
 
@@ -111,7 +110,7 @@ if ! which chromium &>/dev/null; then
 fi
 
 # Create a temporary dir
-tmpdir=$(mktemp -q -d "${work_dir_root}".XXX)
+tmpdir=$(mktemp -q -d "${TMPDIR:-"/tmp"}/private_chromium".XXX)
 chromium_args+=('--disk-cache-dir='"${tmpdir}")
 
 exit_code=0
