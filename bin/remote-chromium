@@ -71,11 +71,6 @@ case "${1:-}" in
 			echo "Could not verify that Tor is running, please make sure it is. Proceeding anyway!"
 		fi
 
-		# Print some information about the new IP address and chromium configuration
-		echo "fake-ip: $(curl -s --preproxy socks5://localhost:9050 ipecho.net/plain 2>&1)"
-		echo "real-ip: $(curl -s ipecho.net/plain 2>&1)"
-		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
-
 		chromium_args+=(
 			'--proxy-server='"socks5://localhost:9050"
 			# Disable local DNS queries which might circumvent the socks proxy
@@ -94,11 +89,6 @@ case "${1:-}" in
 		# Start a socks proxy via ssh
 		ssh "${@}" -TND "${SSH_SOCKS_PORT}" & socks_pid=$!
 		sleep 0.3
-
-		# Print some information about the new IP address and chromium configuration
-		echo "fake-ip: $(curl -s --preproxy socks5://localhost:9066 ipecho.net/plain 2>&1)"
-		echo "real-ip: $(curl -s ipecho.net/plain 2>&1)"
-		echo -e "\e[1mStarting chromium in incognito modus, disabling custom DNS services, keeping the cache in /tmp and using the local tor proxy.\e[0m"
 
 		chromium_args+=(
 			'--proxy-server='"socks5://localhost:9066"
