@@ -99,7 +99,7 @@ case "${1:-}" in
 		sleep 0.3
 
 		chromium_args+=(
-			'--proxy-server='"socks5://localhost:9066"
+			'--proxy-server='"socks5://localhost:${SSH_SOCKS_PORT}"
 			# Disable local DNS queries which might circumvent the socks proxy
 			'--host-resolver-rules='"MAP * ~NOTFOUND , EXCLUDE localhost"
 		)
