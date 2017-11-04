@@ -85,6 +85,8 @@ case "${1:-}" in
 			'--host-resolver-rules='"MAP * ~NOTFOUND , EXCLUDE localhost"
 		)
 		;;
+	"local")
+		;;
 	-h|--help)
 		help
 		exit 0
