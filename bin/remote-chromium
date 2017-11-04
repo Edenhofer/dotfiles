@@ -18,20 +18,37 @@ SUDO_CMD="${SUDO_CMD:-"sudo -u ${UNPRIV_USER} --"}"
 function help() {
 	cat <<-EOF
 	$myname $myversion
-	A privacy enabled version of chromium using a specfied proxy or Tor and
-	various command line flags in order to disguise the user's location and to
+	A privacy enabled version of chromium using a proxy or Tor as entry point,
+	utilizing various chromium command line flags, a clean temporary environment
+	and restricted system access in order to disguise the user's location and to
 	hide identifiable information.
 
-	In order to hear sound you must confiure pulseaudio accordingly, e.g. using `paprefs`.
+	In order to hear sound you must confiure pulseaudio to allow network access
+	since the browser will not be running under you user. (Use e.g. \`paprefs\`.)
+	Furthermore the script will grant local X access for the same reasons.
 
-	Usage: $myname <PROXY>
-	    --help              Display this help message and exit
+	Usage: $myname [PROXY] [OPTION(S)]
+	    PROXY           Hostname evaluated by ssh to use as socks proxy
+	    OPTIONS         Parameters passed on to ssh to establish a connection
+	    --help          Display this help message and exit
+
+	Some proxy-names bare a special meaning and are not evaluated by ssh:
+	    tor             Use the local tor entry point
+	    local           Do not use a proxy but set up a privacy enable environment
+
+	Environment variables:
+	    SSH_SOCKS_PORT      SSH port to use for socks,
+	                        defaults to '9066'
+	    UNPRIV_USER         System user running the browser,
+	                        defaults to 'nobody'
+	    SUDO_CMD            Privilege escalation command,
+	                        defaults to 'sudo -u \${UNPRIV_USER}'
 
 	$myname honors aliases configured via ssh.
 
-	Examples:   # $myname
-	    # $myname tor    # Equivalent to the above
-	    # $myname user@host
+	Examples:   $ $myname
+	    $ $myname tor    # Equivalent to the above
+	    $ $myname user@host
 
 	Copyright (c) Gordian Edenhofer <gordian.edenhofer@gmail.com>
 	The script requires chromium, bash>=4.2, ssh, sudo and unzip.
@@ -127,9 +144,6 @@ done
 
 # Grant access to the X server
 xhost local:root
-# Furthermore you have to grant access to your pulseaudio session
-# in order to hear sound. Do so by e.g. using `pulseaudio`.
-# This is due the fact that `chromium` is running under a different user.
 
 # Actually invoke the browser
 ${SUDO_CMD} env -i DISPLAY="${DISPLAY}" HOME="${tmpdir}" \
