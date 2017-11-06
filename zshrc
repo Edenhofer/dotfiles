@@ -305,13 +305,11 @@ if which pacman &>/dev/null; then
 		alias paccache='sudo paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
 		alias outlib="sudo lsof +c 0 | { grep 'DEL.*lib' || true } | awk '{ print \$NF }' | sort -u"
-		alias outpac="sudo lsof +c 0 | { grep 'DEL.*lib' || true } | awk '{ print \$NF }' | sed -e 's/.so.*/.so/g' | pacman -Qoq - 2>/dev/null | sort -u"
 	else
 		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
 		alias paccache='paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
 		alias outlib="lsof +c 0 | { grep 'DEL.*lib' || true } | awk '{ print \$NF }' | sort -u"
-		alias outpac="lsof +c 0 | { grep 'DEL.*lib' || true } | awk '{ print \$NF }' | sed -e 's/.so.*/.so/g' | pacman -Qoq - 2>/dev/null | sort -u"
 	fi
 fi
 
