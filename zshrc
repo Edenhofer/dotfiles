@@ -9,11 +9,9 @@ bindkey '\e[2~' overwrite-mode
 bindkey "^[[7~" beginning-of-line	# Pos1
 bindkey "^[[8~" end-of-line			# End
 bindkey "^[[A" history-beginning-search-backward
+bindkey "^[OA" history-beginning-search-backward
 bindkey "^[[B" history-beginning-search-forward
-
-# Use local history for up and down keys, while preserving a global one
-bindkey "^[OA" up-line-or-beginning-search
-bindkey "^[OB" down-line-or-beginning-search
+bindkey "^[OB" history-beginning-search-forward
 
 # Add edit command line feature ("alt-e")
 autoload edit-command-line
