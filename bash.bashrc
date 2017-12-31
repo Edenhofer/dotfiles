@@ -226,9 +226,6 @@ mcd() { mkdir -p "$1" && cd "$1"; }
 # Comparing the md5sum of a file "$1" with a given one "$2"
 md5check() { md5sum "$1" | grep "$2";}
 
-# Top 10 cammands
-top10() { history | awk '{a[$4]++ } END{for(i in a){print a[i] " " i}}' | sort -rn | head; }
-
 # Fetching outwards facing IP-adress
 ipinfo() {
 	[[ -z "$*" ]] && curl ipinfo.io || curl ipinfo.io/"$*"; echo
