@@ -136,6 +136,7 @@ alias intercept='sudo strace -ff -e trace=write -e write=1,2 -p'
 alias listen='lsof -P -i -n'
 alias port='ss -tulanp'
 alias genpasswd="openssl rand -base64 128"
+alias open="xdg-open"
 
 # Create sudo aliases for various commands
 if (( UID != 0 )); then
