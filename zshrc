@@ -36,6 +36,7 @@ colors
 setopt noincappendhistory
 setopt sharehistory
 setopt appendhistory
+setopt interactivecomments	# Activate bash-style comments
 setopt autocd				# .. -> cd ../
 setopt extendedglob			# cd search
 setopt print_exit_value		# Print non-zero exit value
