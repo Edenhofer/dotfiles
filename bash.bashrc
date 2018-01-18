@@ -227,6 +227,9 @@ sbs() {
 # Create directory and cd into it
 mcd() { mkdir -p "$1" && cd "$1"; }
 
+# Escape odd paths containing special characters to make them reusable as shell input
+escape() { printf '%q\n' "${@}"; }
+
 # Comparing the md5sum of a file "$1" with a given one "$2"
 md5check() { md5sum "$1" | grep "$2";}
 
