@@ -50,14 +50,14 @@ export HISTSIZE=5000              # bash history will save N commands
 export HISTFILESIZE=${HISTSIZE}   # bash will remember N commands
 export HISTTIMEFORMAT="%d. %h %H:%M:%S> "    # add timestamps to each command
 
-# Ingore duplicates
+# Ignore duplicates
 HISTCONTROL=erasedups
 HISTIGNORE='&:exit:logout:clear:history'
 
 
 # --- # Shell agnostic configuration
 
-# Export the default ditor
+# Export a default editor
 if which vim &>/dev/null; then
 	export EDITOR="vim"
 elif which vi &>/dev/null; then
@@ -233,7 +233,7 @@ escape() { printf '%q\n' "${@}"; }
 # Comparing the md5sum of a file "$1" with a given one "$2"
 md5check() { md5sum "$1" | grep "$2";}
 
-# Fetching outwards facing IP-adress
+# Fetching outwards facing IP-address
 ipinfo() {
 	[[ -z "$*" ]] && curl ipinfo.io || curl ipinfo.io/"$*"; echo
 }

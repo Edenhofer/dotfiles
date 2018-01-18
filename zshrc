@@ -24,7 +24,7 @@ HISTFILE="${HOME}/.zsh_history"
 HISTSIZE=1000000
 SAVEHIST="${HISTSIZE}"
 
-# Ingore duplicates
+# Ignore duplicates
 HISTCONTROL=erasedups
 HISTIGNORE='&:exit:logout:clear:history'
 # }}}
@@ -64,7 +64,7 @@ zstyle :compinstall filename "${HOME}/.zshrc"
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${HOME}/.zcompcache"
 zstyle ':completion:*' use-perl on
-# Completion colours
+# Completion colors
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 # Completion order
 zstyle ':completion:*' completer _complete _match _approximate
@@ -181,7 +181,7 @@ fi
 
 # --- # Shell agnostic configuration
 
-# Export the default ditor
+# Export a default editor
 if which vim &>/dev/null; then
 	export EDITOR="vim"
 elif which vi &>/dev/null; then
@@ -357,7 +357,7 @@ md5check() { md5sum "$1" | grep "$2";}
 # Escape odd paths containing special characters to make them reusable as shell input
 escape() { printf '%q\n' "${@}"; }
 
-# Fetching outwards facing IP-adress
+# Fetching outwards facing IP-address
 ipinfo() {
 	[[ -z "$*" ]] && curl ipinfo.io || curl ipinfo.io/"$*"; echo
 }
