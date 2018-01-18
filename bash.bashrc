@@ -81,6 +81,9 @@ export LESS='-i -n -w -M -R -P%t?f%f \
 [[ -d "${HOME}/bin" ]] && export PATH="${HOME}/bin:${PATH}"
 export PATH="${PATH}:."
 
+# Alter the GOPATH
+export GOPATH="${HOME}/.go"
+
 # Speed up switching to vim mode
 export KEYTIMEOUT=1 # Lower recognition threshold to 10ms for key sequences
 
