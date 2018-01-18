@@ -184,11 +184,19 @@ if which pacman &>/dev/null; then
 		alias paccache='sudo paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
 		alias outlib="sudo lsof +c 0 -d DEL | awk '\$8~/\/usr\/lib/ { print \$NF }' | sort -u"
+		outserve() {
+			local pids=($(sudo lsof +c 0 -d DEL | awk '$8~/\/usr\/lib/ { print $2 }'))
+			(( ${#pids[@]} > 0 )) && { ps -o unit= "${pids[@]}" | sort -u } || return 0
+		}
 	else
 		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
 		alias paccache='paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
 		alias outlib="lsof +c 0 -d DEL | awk '\$8~/\/usr\/lib/ { print \$NF }' | sort -u"
+		outserve() {
+			local pids=($(lsof +c 0 -d DEL | awk '$8~/\/usr\/lib/ { print $2 }'))
+			(( ${#pids[@]} > 0 )) && { ps -o unit= "${pids[@]}" | sort -u } || return 0
+		}
 	fi
 fi
 
