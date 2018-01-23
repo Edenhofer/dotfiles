@@ -175,7 +175,7 @@ if which systemctl &>/dev/null; then
 	alias list-unit-files='systemctl list-unit-files'
 fi
 
-# Pacman support
+# Package manager aliases and utilities (especially pacman)
 if which pacman &>/dev/null; then
 	if (( UID != 0 )); then
 		alias pacman='sudo pacman'
@@ -184,21 +184,19 @@ if which pacman &>/dev/null; then
 		alias paccache='sudo paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
 		alias outlib="sudo lsof -d DEL | awk '\$8~/\/usr\/lib/ { print \$NF }' | sort -u"
-		outserve() {
-			local pids=($(sudo lsof -d DEL | awk '$8~/\/usr\/lib/ { print $2 }'))
-			(( ${#pids[@]} > 0 )) && { ps -o unit= "${pids[@]}" | sort -u } || return 0
-		}
 	else
 		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
 		alias paccache='paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
 		alias outlib="lsof -d DEL | awk '\$8~/\/usr\/lib/ { print \$NF }' | sort -u"
-		outserve() {
-			local pids=($(lsof -d DEL | awk '$8~/\/usr\/lib/ { print $2 }'))
-			(( ${#pids[@]} > 0 )) && { ps -o unit= "${pids[@]}" | sort -u } || return 0
-		}
 	fi
 fi
+outserve() {
+	(( UID == 0 )) && local lsof_cmd='lsof' || local lsof_cmd='sudo lsof'
+
+	local pids=($(${lsof_cmd} -d DEL | awk '$8~/\/usr\/lib/ { print $2 }'))
+	(( ${#pids[@]} > 0 )) && { ps -o unit= "${pids[@]}" | sort -u; } || return 0
+}
 
 # Support netctl commands if available
 if which netctl &>/dev/null; then
