@@ -218,12 +218,13 @@ gpg-connect-agent updatestartuptty /bye >/dev/null
 
 # 'Command not found' completion
 command_not_found_handler() {
-	local cmd=$1
+	local pkgs cmd=$1
 	local FUNCNEST=10
 
 	set +o verbose
 
-	pkgs=(${(f)"$(pkgfile -b -v -- "${cmd}" 2>/dev/null)"})
+	command -v pkgfile >/dev/null && pkgs=(${(f)"$(pkgfile -b -v -- "${cmd}" 2>/dev/null)"})
+
 	if [[ -n "${pkgs[*]}" ]]; then
 		printf '%s may be found in the following packages:\n' "${cmd}"
 		printf '  %s\n' "${pkgs[@]}"
