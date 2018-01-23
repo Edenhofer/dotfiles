@@ -223,7 +223,10 @@ command_not_found_handler() {
 
 	set +o verbose
 
-	command -v pkgfile >/dev/null && pkgs=(${(f)"$(pkgfile -b -v -- "${cmd}" 2>/dev/null)"})
+	if command -v pkgfile >/dev/null; then
+		[[ -n "${BASH_VERSION}" ]] && mapfile -t pkgs < <(pkgfile -bv -- "$cmd" 2>/dev/null)
+		[[ -n "${ZSH_VERSION}" ]] && pkgs=(${(f)"$(pkgfile -b -v -- "$cmd" 2>/dev/null)"})
+	fi
 
 	if [[ -n "${pkgs[*]}" ]]; then
 		printf '%s may be found in the following packages:\n' "${cmd}"
@@ -234,6 +237,7 @@ command_not_found_handler() {
 		return 127
 	fi
 }
+command_not_found_handle() { command_not_found_handler "$@"; }
 
 # Enable autocolor for various commands through alias
 alias ls='ls --color=auto'
