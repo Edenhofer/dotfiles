@@ -316,9 +316,9 @@ if which pacman &>/dev/null; then
 	fi
 fi
 outserve() {
-	(( UID == 0 )) && local lsof_cmd='lsof' || local lsof_cmd='sudo lsof'
+	(( UID == 0 )) && local lsof_cmd=('lsof') || local lsof_cmd=('sudo' 'lsof')
 
-	local pids=($(${lsof_cmd} -d DEL | awk '$8~/\/usr\/lib/ { print $2 }'))
+	local pids=($("${lsof_cmd[@]}" -d DEL | awk '$8~/\/usr\/lib/ { print $2 }'))
 	(( ${#pids[@]} > 0 )) && { ps -o unit= "${pids[@]}" | sort -u; } || return 0
 }
 
