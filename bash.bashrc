@@ -105,7 +105,7 @@ command_not_found_handler() {
 		printf '  %s\n' "${pkgs[@]}"
 		return 0
 	else
-		>&2 printf "${SHELL}: command not found: %s\n" "${cmd}"
+		>&2 printf '%s: command not found: %s\n' "${SHELL}" "${cmd}"
 		return 127
 	fi
 }
@@ -183,12 +183,12 @@ if which pacman &>/dev/null; then
 		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
 		alias paccache='sudo paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
-		alias outlib="sudo lsof -d DEL | awk '\$8~/\/usr\/lib/ { print \$NF }' | sort -u"
+		alias outlib='sudo lsof -d DEL | awk "\$8~/\/usr\/lib/ { print \$NF }" | sort -u'
 	else
 		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
 		alias paccache='paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
 		# Finding libraries which where renewed in an update but where the old version is still used
-		alias outlib="lsof -d DEL | awk '\$8~/\/usr\/lib/ { print \$NF }' | sort -u"
+		alias outlib='lsof -d DEL | awk "\$8~/\/usr\/lib/ { print \$NF }" | sort -u'
 	fi
 fi
 outserve() {
@@ -233,15 +233,20 @@ sbs() {
 # Create directory and cd into it
 mcd() { mkdir -p "$1" && cd "$1"; }
 
-# Escape odd paths containing special characters to make them reusable as shell input
-escape() { printf '%q\n' "${@}"; }
-
 # Comparing the md5sum of a file "$1" with a given one "$2"
 md5check() { md5sum "$1" | grep "$2";}
 
+# Escape odd paths containing special characters to make them reusable as shell input
+escape() { printf '%q\n' "${@}"; }
+
 # Fetching outwards facing IP-address
 ipinfo() {
-	[[ -z "$*" ]] && curl ipinfo.io || curl ipinfo.io/"$*"; echo
+	if [[ -z "$*" ]]; then
+		curl ipinfo.io
+	else
+		curl ipinfo.io/"$*"
+	fi
+	echo
 }
 
 # Remind me later
