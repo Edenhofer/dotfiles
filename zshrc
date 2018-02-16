@@ -213,8 +213,8 @@ export KEYTIMEOUT=1 # Lower recognition threshold to 10ms for key sequences
 
 # Enable GPG support for various command line tools
 export GPG_TTY=$(tty)
-# Refresh gpg-agent tty in case user switches into an X session
-gpg-connect-agent updatestartuptty /bye >/dev/null
+# Refresh gpg-agent tty for non-ssh connections in case the user switches into a X session
+[[ -z "${SSH_CLIENT}" && -z "${SSH_TTY}" ]] && gpg-connect-agent updatestartuptty /bye >/dev/null
 
 # 'Command not found' completion
 command_not_found_handler() {
