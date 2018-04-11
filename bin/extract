@@ -36,7 +36,7 @@ fi
 
 # Define DESTDIR and default to the current location
 DESTDIR="."
-if [[ -n "$2" ]]; then
+if [[ -n "${2:-""}" ]]; then
 	if [[ -d "$2" ]]; then
 		DESTDIR="$2"
 	else
@@ -56,12 +56,10 @@ if [[ -n "$2" ]]; then
 			exit 3
 		fi
 	fi
-else
-	DESTDIR="$2"
 fi
 
 # Pass additional arguments on to tar
-[[ -z $2 ]] && params=("${@:2}") || params=("${@:3}")
+[[ -z ${2:-""} ]] && params=("${@:2}") || params=("${@:3}")
 
 # Extract file
 filename=$(basename "$1")
