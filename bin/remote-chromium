@@ -29,11 +29,11 @@ function help() {
 
 	Usage: $myname [PROXY] [OPTION(S)]
 	    PROXY           Hostname evaluated by ssh to use as socks proxy
-	    OPTIONS         Parameters passed on to ssh to establish a connection
+	    OPTIONS         Parameters passed on to chromium
 	    --help          Display this help message and exit
 
 	Some proxy-names bare a special meaning and are not evaluated by ssh:
-	    tor             Use the local tor entry point
+	    tor             Use a local tor entry point
 	    local           Do not use a proxy but set up a privacy enable environment
 
 	Environment variables:
@@ -44,7 +44,8 @@ function help() {
 	    SUDO_CMD            Privilege escalation command,
 	                        defaults to 'sudo -u \${UNPRIV_USER}'
 
-	$myname honors aliases configured via ssh.
+	$myname depends on the user's configuration for ssh connections and therefore
+	allows the ssh aliases and credentials to be used for proxying.
 
 	Examples:   $ $myname
 	    $ $myname tor    # Equivalent to the above
@@ -114,7 +115,7 @@ case "${1:-}" in
 		;;
 	*)
 		# Start a socks proxy via ssh
-		ssh "${@}" -TND "${SSH_SOCKS_PORT}" & socks_pid=$!
+		ssh ${1:-} -TND "${SSH_SOCKS_PORT}" & socks_pid=$!
 		sleep 0.3
 
 		chromium_args+=(
@@ -124,6 +125,7 @@ case "${1:-}" in
 		)
 		;;
 esac
+shift
 
 if ! which chromium &>/dev/null; then
 	echo "Could not find chromium!"
@@ -147,6 +149,6 @@ xhost local:root
 
 # Actually invoke the browser
 ${SUDO_CMD} env -i DISPLAY="${DISPLAY}" HOME="${tmpdir}" \
-	chromium "${chromium_args[@]}" https://check.torproject.org/ || exit_code=$?
+	chromium "${chromium_args[@]}" "${@}" https://check.torproject.org/ || exit_code=$?
 
 exit "${exit_code:-"0"}"
