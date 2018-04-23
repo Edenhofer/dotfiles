@@ -89,8 +89,8 @@ zstyle ':completion:*:*:kill:*' command 'ps --forest -u${USER} -o pid,%cpu,tty,c
 # Provide more processes in completion of programs like killall:
 zstyle ':completion:*:processes-names' command 'ps c -u ${USER} -o command | uniq'
 compdef pkill=killall
-# List files by time when completing
-zstyle ':completion:*' file-sort time
+# List files by either file, time, size, links, access or inode when completing
+zstyle ':completion:*' file-sort file
 # Ignore same file on rm
 zstyle ':completion:*:(rm|kill|diff):*' ignore-line yes
 zstyle ':completion:*:rm:*' file-patterns '*:all-files'
