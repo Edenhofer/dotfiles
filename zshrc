@@ -82,8 +82,8 @@ zstyle ':completion:*:match:*' original only
 zstyle ':completion:*:functions' ignored-patterns '_*'
 # Get rid of .class and .o files for vim
 zstyle ':completion:*:vim:*' ignored-patterns '*.(class|o)'
-# Show menu when tabbing
-zstyle ':completion:*' menu yes select
+# Show menu when tabbing; pass additional 'yes' to auto-accept first entry
+zstyle ':completion:*' menu select
 # Pretty completion for kill
 zstyle ':completion:*:*:kill:*' command 'ps --forest -u${USER} -o pid,%cpu,tty,cputime,cmd'
 # Provide more processes in completion of programs like killall:
