@@ -175,6 +175,15 @@ else
 	host_color="%F{green}"
 	path_color="%F{blue}"
 	PROMPT="${username_color}$USERNAME%f@${host_color}%B%m%b%f ${path_color}%B%~%b%f > "
+
+	# Tweak the reverse side of PROMPT / PS1 to highlight special vi edit modes and the current git branch
+	function zle-line-init zle-keymap-select {
+		vim_prompt="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
+		RPROMPT="${${KEYMAP/vicmd/$vim_prompt}/(main|viins)/} $(git rev-parse --abbrev-ref HEAD 2>/dev/null) $EPS1"
+		zle reset-prompt
+	}
+	zle -N zle-line-init
+	zle -N zle-keymap-select
 fi
 # }}}
 
