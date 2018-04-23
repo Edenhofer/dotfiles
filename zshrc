@@ -1,7 +1,16 @@
 # Keybindings {{{
 # Use vim keyboard bindings
 bindkey -v
+
+# Make `backspace` and `^h` work after returning from command mode
+bindkey '^?' backward-delete-char
+bindkey '^h' backward-delete-char
+
 # Use some of emacs' shortcuts to move around
+bindkey '^P' up-history
+bindkey '^N' down-history
+bindkey '^w' backward-kill-word
+bindkey '^r' history-incremental-search-backward
 bindkey '\e[1~' beginning-of-line
 bindkey '\e[4~' end-of-line
 bindkey '\e[3~' delete-char
