@@ -156,7 +156,6 @@ if (( UID != 0 )); then
 	alias sli='sudo less'
 	alias sport='sudo ss -tulanp'
 	alias snano='sudo nano'
-	alias root='sudo su'
 	alias reboot='sudo reboot'
 fi
 
