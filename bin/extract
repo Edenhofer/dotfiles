@@ -3,10 +3,8 @@
 # extract: Archive extraction
 #
 
-# Strictly disallow uninitialized Variables
-set -u
-# Exit if a single command breaks and its failure is not handled accordingly
-set -e
+# Strictly disallow uninitialized variables and exit on command failures (even in pipes)
+set -Eeuo pipefail
 
 # Color codes
 ALL_OFF="$(tput sgr0)"
