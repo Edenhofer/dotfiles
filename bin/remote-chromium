@@ -85,6 +85,8 @@ chromium_extensions=(
 	'dbepggeogbaibhgnhhndojpepiihcmeb'	# Vimium
 )
 
+curl_args=('-s' '-L')
+
 
 # Simple and stupid argument check since only one argument can be passed
 case "${1:-}" in
@@ -99,6 +101,10 @@ case "${1:-}" in
 			'--proxy-server='"socks5://localhost:9050"
 			# Disable local DNS queries which might circumvent the socks proxy
 			'--host-resolver-rules='"MAP * ~NOTFOUND , EXCLUDE localhost"
+		)
+
+		curl_args+=(
+			'--proxy' "socks5://localhost:9050"
 		)
 		;;
 	"local")
@@ -121,6 +127,9 @@ case "${1:-}" in
 			# Disable local DNS queries which might circumvent the socks proxy
 			'--host-resolver-rules='"MAP * ~NOTFOUND , EXCLUDE localhost"
 		)
+		curl_args+=(
+			'--proxy' "socks5://localhost:${SSH_SOCKS_PORT}"
+		)
 		;;
 esac
 shift
@@ -135,7 +144,7 @@ tmpdir=$(${SUDO_CMD} mktemp -q -d "${TMPDIR:-"/tmp"}/private_chromium".XXX)
 
 # Add chromium extensions
 for i in "${chromium_extensions[@]}"; do
-	${SUDO_CMD} curl -s -o "${tmpdir}/${i}.crx" -L "https://clients2.google.com/service/update2/crx?response=redirect&prodversion=$(chromium --product-version)&x=id%3D${i}%26uc"
+	${SUDO_CMD} curl "${curl_args[@]}" -o "${tmpdir}/${i}.crx" "https://clients2.google.com/service/update2/crx?response=redirect&prodversion=$(chromium --product-version)&x=id%3D${i}%26uc"
 	${SUDO_CMD} unzip -q "${tmpdir}/${i}.crx" -d "${tmpdir}/${i}" && true
 	${SUDO_CMD} find "${tmpdir}/${i}" -type d -exec chmod u+x {} \;
 	ext="${tmpdir}/${i},${ext:-""}"
