@@ -104,7 +104,7 @@ case "${1:-}" in
 		)
 
 		curl_args+=(
-			'--proxy' "socks5://localhost:9050"
+			'--proxy' "socks5h://localhost:9050"
 		)
 		;;
 	"local")
@@ -128,7 +128,7 @@ case "${1:-}" in
 			'--host-resolver-rules='"MAP * ~NOTFOUND , EXCLUDE localhost"
 		)
 		curl_args+=(
-			'--proxy' "socks5://localhost:${SSH_SOCKS_PORT}"
+			'--proxy' "socks5h://localhost:${SSH_SOCKS_PORT}"
 		)
 		;;
 esac
