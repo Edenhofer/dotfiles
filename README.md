@@ -35,10 +35,6 @@ All files should be easily readable and self-explaining. However I would still l
 	* one (defautl): classical one window layout
 	* split: splitted layout
 
-### AppArmor
-* Sane profiles for various endangered programs
-* Optimized for Arch Linux
-
 ## Setup
 You may use those configuration files solely for inspiration or if you really like them you might even build on top of them. To move the the various files in place, I would recommend simply linking them instead of actually moving the file. Remember to not move the linked files afterwards without changing the links accordingly.
 
@@ -64,10 +60,6 @@ ln -s $(pwd)/screenrc /etc/screenrc
 
 # Link color schemes for listing files
 ln -s $(pwd)/dircolors /etc/dircolors
-
-# Link AppArmor profiles with HARD links (dirs must be on the same fs!!!)
-find apparmor.d -maxdepth 1 -type f -exec ln $(pwd)/{} /etc/apparmor.d/ \;
-find apparmor.d/abstractions -maxdepth 1 -type f -exec ln $(pwd)/{} /etc/apparmor.d/abstractions/ \;
 ```
 
 * Use the files for a single user only
