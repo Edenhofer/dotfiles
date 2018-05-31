@@ -22,6 +22,8 @@ $if mode=emacs
 "\e\e[D": backward-word
 "\e[1;5C": forward-word
 "\e[1;5D": backward-word
+"\e[3;5~": kill-word
+"\C-h": backward-kill-word
 
 # for rxvt
 "\e[8~": end-of-line
