@@ -57,8 +57,10 @@ function help() {
 # Lazy recursive clean up of temporary directories
 function clean_up() {
 	[[ -n "${tmpdir:-""}" ]] && ${SUDO_CMD} find "${tmpdir}" -type d -exec chmod u+x {} \; && ${SUDO_CMD} rm -rf "${tmpdir}"
-	# Kill socks_pid if it is defined since this means a socks process was started previously
-	[[ -n "${socks_pid:-""}" ]] && kill "${socks_pid}"
+	# Cleanly exit running SSH connection using the control socket
+	if [[ -n "${ssh_host:-""}" && -n "${ssh_socket_path}" ]]; then
+		ssh ${ssh_host} -S "${ssh_socket_path}" -O check && ssh ${ssh_host} -S "${ssh_socket_path}" -O exit
+	fi
 
 	echo
 	exit
@@ -86,6 +88,10 @@ chromium_extensions=(
 )
 
 curl_args=('-s' '-L')
+
+# Initialize the variables which are required to set up a SSH proxy
+ssh_host=""
+ssh_socket_path="${TMPDIR:-"/tmp"}/$(basename "$0")-ssh-control-socket"
 
 
 # Simple and stupid argument check since only one argument can be passed
@@ -119,8 +125,8 @@ case "${1:-}" in
 		;;
 	*)
 		# Start a socks proxy via ssh
-		ssh ${1:-} -TND "${SSH_SOCKS_PORT}" & socks_pid=$!
-		sleep 0.3
+		ssh_host="${1:-}"
+		ssh ${ssh_host} -M -S "${ssh_socket_path}" -fTND "${SSH_SOCKS_PORT}" -o ExitOnForwardFailure=yes
 
 		chromium_args+=(
 			'--proxy-server='"socks5://localhost:${SSH_SOCKS_PORT}"
