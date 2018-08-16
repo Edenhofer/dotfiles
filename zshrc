@@ -223,6 +223,7 @@ export LESS='-i -n -w -M -R -P%t?f%f \
 [[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:${PATH}"
 [[ -d "${HOME}/c" ]] && export PATH="${HOME}/c:${PATH}"
 [[ -d "${HOME}/bin" ]] && export PATH="${HOME}/bin:${PATH}"
+[[ -d "${HOME}/.local/bin" ]] && export PATH="${HOME}/.local/bin:${PATH}"
 export PATH="${PATH}:."
 
 # Alter the GOPATH
