@@ -1,6 +1,4 @@
-# Backup files
+# Disregard editor configurations and backup files
+.vscode/
 *~
 *.bak
-
-# Temporary Ignore List
-tmux.conf
