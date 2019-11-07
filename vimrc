@@ -5,7 +5,7 @@ runtime! archlinux.vim
 set tabstop=4       " Number of spaces that a <Tab> in the file counts for.
 set shiftwidth=4    " Number of spaces to use for each step of (auto)indent.
 set showcmd         " Show (partial) command in status line.
-set number          " Show line numbers.
+"set number          " Show line numbers.
 set hlsearch        " When there is a previous search pattern, highlight all its matches.
 set incsearch       " While typing a search command, show immediately where the so far typed pattern matches.
 set ignorecase      " Ignore case in search patterns.
