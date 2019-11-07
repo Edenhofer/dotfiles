@@ -93,6 +93,11 @@ export GPG_TTY=$(tty)
 # Refresh gpg-agent tty for non-ssh connections in case the user switches into a X session
 [[ -z "${SSH_CLIENT}" && -z "${SSH_TTY}" ]] && gpg-connect-agent updatestartuptty /bye >/dev/null
 
+# Cope with very old remote systems not recognizing a modern TERM
+if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
+    TERM="screen-256color" # Assume GNU screen is universally recognized
+fi
+
 # 'Command not found' completion
 command_not_found_handler() {
 	local pkgs cmd=$1
