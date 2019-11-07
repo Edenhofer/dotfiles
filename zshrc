@@ -25,7 +25,7 @@ if [[ -d /usr/share/oh-my-zsh/ || -d "${HOME}/.oh-my-zsh/" ]]; then
 
 	# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 	# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-	plugins=(vi-mode git dirhistory zsh-completions)
+	plugins=(vi-mode git dirhistory)
 
 	# Oh-my-zsh caching
 	ZSH_CACHE_DIR="${HOME}/.oh-my-zsh-cache"
