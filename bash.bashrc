@@ -70,7 +70,7 @@ fi
 export VISUAL="${EDITOR}"
 
 # Pretty less
-export PAGER=less
+export PAGER="less"
 export LESSCHARSET="UTF-8"
 export LESS='-i -n -w -M -R -P%t?f%f \
 :stdin .?pb%pb\%:?lbLine %lb:?bbByte %bb:-...'
@@ -118,8 +118,6 @@ command_not_found_handle() { command_not_found_handler "$@"; }
 
 # Enable autocolor for various commands through alias
 alias ls='ls --color=auto'
-alias dir='dir --color=auto'
-alias vdir='vdir --color=auto'
 alias grep='grep --color=auto'
 
 # Aliasing ls commands
@@ -187,13 +185,15 @@ if which pacman &>/dev/null; then
 		alias mkinitcpio='sudo mkinitcpio'
 		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
 		alias paccache='sudo paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
-		# Finding libraries which where renewed in an update but where the old version is still used
+		# Find libraries which were renewed in an update but the old version is still used
 		alias outlib='sudo lsof -d DEL | awk "\$8~/\/usr\/lib/ { print \$NF }" | sort -u'
+		alias outproc="sudo lsof -d DEL +c0 | awk '\$8~/\/usr\/lib/ && !x[\$NF\$1]++ { print \$NF, \$1; }' | column -t"
 	else
 		# A custom cache location can be specified with '-c'; consider this a TODO for you to adjust
 		alias paccache='paccache -v -c /var/cache/pacman/pkg -c /var/cache/aur'
-		# Finding libraries which where renewed in an update but where the old version is still used
+		# Find libraries which were renewed in an update but the old version is still used
 		alias outlib='lsof -d DEL | awk "\$8~/\/usr\/lib/ { print \$NF }" | sort -u'
+		alias outproc="lsof -d DEL +c0 | awk '\$8~/\/usr\/lib/ && !x[\$NF\$1]++ { print \$NF, \$1; }' | column -t"
 	fi
 fi
 outserve() {
