@@ -58,11 +58,13 @@ HISTIGNORE='&:exit:logout:clear:history'
 # --- # Shell agnostic configuration
 
 # Export a default editor
-if which vim &>/dev/null; then
+if command -v nvim &>/dev/null; then
+	export EDITOR="nvim"
+elif command -v vim &>/dev/null; then
 	export EDITOR="vim"
-elif which vi &>/dev/null; then
+elif command -v vi &>/dev/null; then
 	export EDITOR="vi"
-elif which emacs &>/dev/null; then
+elif command -v emacs &>/dev/null; then
 	export EDITOR="emacs -nw"
 else
 	export EDITOR="nano"
@@ -95,7 +97,7 @@ export GPG_TTY=$(tty)
 
 # Cope with very old remote systems not recognizing a modern TERM
 if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
-    TERM="screen-256color" # Assume GNU screen is universally recognized
+	TERM="screen-256color" # Assume GNU screen is universally recognized
 fi
 
 # 'Command not found' completion
@@ -141,7 +143,7 @@ alias li='less -i'
 alias p='ps -u `/usr/bin/whoami` -o uid,pid,ppid,class,c,nice,stime,tty,cputime,comm'
 alias r='echo $?'
 alias c='clear'
-alias v='vim'
+alias v="${EDITOR}"  # Use either neovim, vim or vi
 alias cmount='mount | column -t'
 alias meminfo='free -m -l -t'
 alias intercept='sudo strace -ff -e trace=write -e write=1,2 -p'
@@ -164,7 +166,7 @@ if (( UID != 0 )); then
 fi
 
 # Create shortcuts and sudo aliases for systemd
-if which systemctl &>/dev/null; then
+if command -v systemctl &>/dev/null; then
 	if (( UID != 0 )); then
 		alias start='sudo systemctl start'
 		alias restart='sudo systemctl restart'
@@ -184,7 +186,7 @@ if which systemctl &>/dev/null; then
 fi
 
 # Package manager aliases and utilities (especially pacman)
-if which pacman &>/dev/null; then
+if command -v pacman &>/dev/null; then
 	if (( UID != 0 )); then
 		alias pacman='sudo pacman'
 		alias mkinitcpio='sudo mkinitcpio'
@@ -209,7 +211,7 @@ outserve() {
 }
 
 # Support netctl commands if available
-if which netctl &>/dev/null; then
+if command -v netctl &>/dev/null; then
 	if (( UID != 0 )); then
 		alias netctl='sudo netctl'
 		alias netctl-auto='sudo netctl-auto'
@@ -223,17 +225,17 @@ alias fl='find . -type l -exec ls --color=auto -lh {} \;'
 
 # Metasploit Framework
 # Quiet disables ASCII banner and -x ... auto-connects to msf postgresql database owned by ${USER}
-if which msfconsole systemctl &>/dev/null; then
+if command -v msfconsole systemctl &>/dev/null; then
 	alias msfconsole='start postgresql && msfconsole --quiet -x "db_connect ${USER}@msf"'
-elif which msfconsole &>/dev/null; then
+elif command -v msfconsole &>/dev/null; then
 	alias msfconsole='msfconsole --quiet -x "db_connect ${USER}@msf"'
 fi
 
 # Enable fuck support if present
-which thefuck &>/dev/null && eval "$(thefuck --alias)"
+command -v thefuck &>/dev/null && eval "$(thefuck --alias)"
 
 # Disable R's verbose startup message
-which R &>/dev/null && alias R="R --quiet"
+command -v R &>/dev/null && alias R="R --quiet"
 
 # Sort By Size
 sbs() {
@@ -266,7 +268,7 @@ remindme() { sleep "$1" && zenity --info --text "$2" & }
 
 # Simple calculator
 calc() {
-	if which bc &>/dev/null; then
+	if command -v bc &>/dev/null; then
 		echo "scale=3; $*" | bc -l
 	else
 		awk "BEGIN { print $* }"
