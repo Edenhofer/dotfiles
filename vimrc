@@ -63,6 +63,16 @@ set diffopt+=iwhite " Ignore white space
 set linebreak       " Visual line wrapping
 syntax on           " Enable or disable syntax highlighting
 
+" Define an enable switch for hybrid line numbers
+set number relativenumber
+set nu rnu
+" Use absolute line numbers in non-focused buffers
+augroup numbertoggle
+	autocmd!
+	autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
+	autocmd BufLeave,FocusLost,InsertEnter * set norelativenumber
+augroup END
+
 " Enable basic mouse support
 set mouse=a
 " Use the global clipboard for copy-pasting, a.k.a. yanking
@@ -77,19 +87,14 @@ nnoremap <C-l> :bnext<CR>
 set spell
 set spelllang=en_us,de_de
 
-" Define an enable switch for hybrid line numbers
-set number relativenumber
-set nu rnu
-" Use absolute line numbers in non-focused buffers
-augroup numbertoggle
-	autocmd!
-	autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
-	autocmd BufLeave,FocusLost,InsertEnter * set norelativenumber
-augroup END
-
 " Search for selection in visual mode via `//`
 vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
 
 " Select the first, not the last suggestion by remapping {Shift-,}Tab
 inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr><s-TAB> pumvisible() ? "\<C-p>" : "\<s-TAB>"
+
+" Remaps inspired from GUI apps
+inoremap <C-s> <esc>:w<CR>
+noremap <C-s> <esc>:w<CR>
+noremap <C-q> <esc>:q<CR>
