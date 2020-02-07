@@ -32,8 +32,8 @@ let g:airline#extensions#tabline#enabled = 1
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%::%code%]'
-let g:ale_python_pylint_options = '--disable=line-too-long,too-many-locals,too-few-methods,invalid-name,wrong-import-order,wrong-import-position,import-outside-toplevel,missing-module-docstring'
-let g:ale_python_flake8_options = '--ignore=E501,E124'
+let g:ale_python_pylint_options = '--disable=line-too-long,bad-continuation,too-many-locals,too-few-methods,invalid-name,wrong-import-order,wrong-import-position,import-outside-toplevel,missing-module-docstring'
+let g:ale_python_flake8_options = '--ignore=E501,E124,E402,W503,W504'
 " Enable the deoplete auto-completion framework
 let g:deoplete#enable_at_startup = 1
 " Make doc-strings work again in deoplete + Jedi
