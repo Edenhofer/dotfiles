@@ -299,9 +299,7 @@ alias open="xdg-open"
 # Create sudo aliases for various commands
 if (( UID != 0 )); then
 	alias scat='sudo cat'
-	alias svi='sudo vi'
-	alias svim='sudo vim'
-	alias sv='sudo vim'
+	alias sv='sudo ${EDITOR}'
 	alias sll='sudo ls -AlhFv'
 	alias sli='sudo less'
 	alias sport='sudo ss -tulanp'
