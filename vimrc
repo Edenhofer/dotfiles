@@ -5,6 +5,7 @@ runtime! archlinux.vim
 call plug#begin('~/.vim/plugged')
 Plug 'editorconfig/editorconfig-vim'
 Plug 'jamessan/vim-gnupg'
+Plug 'mhinz/vim-signify'  " VCS sign indicators
 
 if has('nvim')
 	Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -13,13 +14,12 @@ else
 endif
 Plug 'deoplete-plugins/deoplete-jedi'
 
-Plug 'scrooloose/nerdtree', { 'on': 'NERDTreeToggle' }
-Plug 'morhetz/gruvbox'
-Plug 'tpope/vim-fugitive'  " Fancy git commands
-Plug 'mhinz/vim-signify'  " VCS sign indicators
-Plug 'vim-airline/vim-airline'
 Plug 'dense-analysis/ale'
+Plug 'tpope/vim-fugitive'  " Fancy git commands
 Plug 'ludovicchabant/vim-gutentags'
+Plug 'morhetz/gruvbox'
+
+Plug 'vim-airline/vim-airline'
 
 call plug#end()
 " Plug-in specific configuration
