@@ -56,6 +56,8 @@ autocmd FileType tex,markdown setlocal conceallevel=2
 
 set updatetime=100  " Plug-in update-time
 
+set signcolumn=yes  " Set the sign column to always-on
+
 set background=dark  " Specify either "dark" or "light"
 
 set tabstop=4     " Number of spaces that a <Tab> in the file counts for.
