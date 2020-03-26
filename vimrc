@@ -19,6 +19,9 @@ Plug 'tpope/vim-fugitive'  " Fancy git commands
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'morhetz/gruvbox'
 
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
+
 Plug 'vim-airline/vim-airline'
 Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
 Plug 'lervag/vimtex'
@@ -42,6 +45,9 @@ let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#jedi#show_docstring = 1
 " Do not pollute projects with .ctags files
 let g:gutentags_cache_dir = "~/.cache/ctags/"
+" Enable snipMate compatibility feature.
+let g:neosnippet#enable_snipmate_compatibility = 1
+let g:neosnippet#snippets_directory = "~/.vim/plugged/vim-snippets/snippets/"
 " Enable conceal features
 let g:tex_conceal="abdgm"
 
