@@ -20,6 +20,8 @@ Plug 'ludovicchabant/vim-gutentags'
 Plug 'morhetz/gruvbox'
 
 Plug 'vim-airline/vim-airline'
+Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
+Plug 'lervag/vimtex'
 
 call plug#end()
 " Plug-in specific configuration
@@ -40,6 +42,11 @@ let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#jedi#show_docstring = 1
 " Do not pollute projects with .ctags files
 let g:gutentags_cache_dir = "~/.cache/ctags/"
+" Enable conceal features
+let g:tex_conceal="abdgm"
+
+" Define how concealed text is treated (default: 0, i.e. no conceal)
+autocmd FileType tex,markdown setlocal conceallevel=2
 
 set updatetime=100  " Plug-in update-time
 
