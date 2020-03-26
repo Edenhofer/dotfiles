@@ -54,6 +54,19 @@ ln -s $(pwd)/screenrc ~/.screenrc
 ln -s $(pwd)/tmux.conf ~/.tmux.conf
 ```
 
+### Vim-Plug
+
+Curl `https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim` to `~/.vim/autoload/plug.vim`.
+
+### NeoVim
+
+```
+" Just source ~/.vimrc
+set runtimepath^=~/.vim runtimepath+=~/.vim/after
+let &packpath = &runtimepath
+source ~/.vimrc
+```
+
 ## See also
 
 * [Arch Build System](https://github.com/Edenhofer/abs) My github repo for tracking AUR packages is designed to be a perfect template to build upon. It contains useful commit hooks with the basics being automated and furthermore provides a utility to speedily upload packages to the AUR. Packages are managed via git-subtree's.
