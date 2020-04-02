@@ -19,11 +19,16 @@ _violet='\[\e[1;38;5;93m\]'
 _red='\[\e[1;38;5;1m\]'
 _orange='\[\e[1;38;5;214m\]'
 _no_color='\[\e[0m\]'
+_shpwd() {
+    dir=${PWD%/*} && last=${PWD##*/}
+	res=$(for i in ${dir//\// }; do echo -n "${i:0:1}/" ; done)
+    echo "/${res}${last}"
+}
 if (( UID == 0 )); then
 	# '\${?#"0"}' can be used to display the last return code
-	PS1="${_grey}[${_red}\u${_another_grey}@${_another_grey}\h${_another_grey}:${_blue}\W${_another_grey}]${_no_color}# "
+	PS1="${_grey}${_red}\u${_another_grey}@${_another_grey}\h${_another_grey} ${_blue}\$(_shpwd)${_another_grey} ${_no_color}# "
 else
-	PS1="${_grey}[${_orange}\u${_another_grey}@${_another_grey}\h${_another_grey}:${_blue}\W${_another_grey}]${_no_color}$ "
+	PS1="${_grey}${_orange}\u${_another_grey}@${_another_grey}\h${_another_grey} ${_blue}\$(_shpwd)${_another_grey} ${_no_color}> "
 fi
 
 # Shell configuration
