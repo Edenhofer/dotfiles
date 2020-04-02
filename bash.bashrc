@@ -34,6 +34,10 @@ shopt -s cmdhist        # Bash attempts to save all lines of a multiple-line com
 shopt -s extglob        # Extended pattern
 #shopt -s no_empty_cmd_completion	# No empty completion
 
+# Search backwards for commands beginning with the characters before the cursor
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
+
 # Completion
 complete -cf sudo
 complete -cf man
