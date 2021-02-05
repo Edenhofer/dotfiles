@@ -22,6 +22,8 @@ Plug 'tpope/vim-fugitive'  " Fancy git commands
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'morhetz/gruvbox'
 
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 Plug 'Shougo/neosnippet.vim'
 Plug 'Shougo/neosnippet-snippets'
 
@@ -55,7 +57,9 @@ let g:tex_flavor = 'latex'
 " Enable automatic LaTeX to Unicode substitution in Julia
 let g:latex_to_unicode_keymap = 1
 " Enable conceal features
-let g:tex_conceal="abdgm"
+let g:tex_conceal = "abdgm"
+" Employ `ripgrep` for an awesome fuzzy search (NOTE, requires `ripgrep`!)
+let $FZF_DEFAULT_COMMAND = "rg --ignore-vcs --files"
 
 " Define how concealed text is treated (default: 0, i.e. no conceal)
 autocmd FileType tex,markdown setlocal conceallevel=2
@@ -116,6 +120,10 @@ inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 inoremap <expr><s-TAB> pumvisible() ? "\<C-p>" : "\<s-TAB>"
 
 " Remaps inspired from GUI apps
-inoremap <C-s> <esc>:w<CR>
-noremap <C-s> <esc>:w<CR>
-noremap <C-q> <esc>:q<CR>
+noremap <c-o> <cmd>Files<CR>
+noremap <c-p> <cmd>Commands<CR>
+noremap <c-f> <cmd>Rg<CR>
+inoremap <C-s> <cmd>w<CR>
+noremap <C-s> <cmd>w<CR>
+noremap <C-q> <cmd>q<CR>
+noremap <C-k> <cmd>ALEHover<CR>
