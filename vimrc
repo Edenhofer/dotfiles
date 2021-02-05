@@ -1,6 +1,8 @@
 " This line should not be removed as it ensures that various options are
 " properly set to work with the Vim-related packages.
 runtime! archlinux.vim
+" Move around code blocks in e.g. Julia
+runtime macros/matchit.vim
 
 call plug#begin('~/.vim/plugged')
 Plug 'editorconfig/editorconfig-vim'
@@ -13,6 +15,7 @@ else
 	Plug 'Shougo/deoplete.nvim'
 endif
 Plug 'deoplete-plugins/deoplete-jedi'
+Plug 'JuliaEditorSupport/julia-vim'
 
 Plug 'dense-analysis/ale'
 Plug 'tpope/vim-fugitive'  " Fancy git commands
@@ -48,6 +51,9 @@ let g:gutentags_cache_dir = "~/.cache/ctags/"
 " Enable snipMate compatibility feature.
 let g:neosnippet#enable_snipmate_compatibility = 1
 let g:neosnippet#snippets_directory = "~/.vim/plugged/vim-snippets/snippets/"
+let g:tex_flavor = 'latex'
+" Enable automatic LaTeX to Unicode substitution in Julia
+let g:latex_to_unicode_keymap = 1
 " Enable conceal features
 let g:tex_conceal="abdgm"
 
