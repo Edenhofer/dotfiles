@@ -62,7 +62,9 @@ let g:tex_conceal = "abdgm"
 let $FZF_DEFAULT_COMMAND = "rg --ignore-vcs --files"
 
 " Define how concealed text is treated (default: 0, i.e. no conceal)
-autocmd FileType tex,markdown setlocal conceallevel=2
+au FileType tex,markdown setlocal conceallevel=2
+au FileType gitcommit set tw=72  " automatically wrap long commit messages
+au FileType gitcommit setlocal spell
 
 set updatetime=100  " Plug-in update-time
 
@@ -79,9 +81,6 @@ set hlsearch    " Highlight all matches of a previous search
 set incsearch   " Show immediately where the so far typed pattern matches
 set ignorecase  " Ignore case in search patterns
 set smartcase   " Override the 'ignorecase' option if the search pattern contains uppercase
-
-au FileType gitcommit set tw=72  " automatically wrap long commit messages
-au FileType gitcommit setlocal spell
 
 set diffopt+=iwhite " Ignore white space
 
@@ -105,8 +104,8 @@ set clipboard=unnamedplus
 
 set hidden
 " Define keyboard shortcuts for switching between buffers
-nnoremap <C-h> :bprev<CR>
-nnoremap <C-l> :bnext<CR>
+nnoremap <C-h> <cmd>bprev<CR>
+nnoremap <C-l> <cmd>bnext<CR>
 
 " Spell checking
 set spell
