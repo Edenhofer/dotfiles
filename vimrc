@@ -97,6 +97,9 @@ augroup numbertoggle
 	autocmd BufLeave,FocusLost,InsertEnter * set norelativenumber
 augroup END
 
+" Enable pasting without replacing the register
+vnoremap p "_dP
+
 " Enable basic mouse support
 set mouse=a
 " Use the global clipboard for copy-pasting, a.k.a. yanking
