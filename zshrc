@@ -91,6 +91,8 @@ bindkey "^[OB" history-beginning-search-forward
 autoload edit-command-line
 zle -N edit-command-line
 bindkey '\ee' edit-command-line
+
+[[ -f /usr/share/fzf/key-bindings.zsh ]] && source /usr/share/fzf/key-bindings.zsh
 # }}}
 
 # History configuration {{{
@@ -329,6 +331,17 @@ if command -v systemctl &>/dev/null; then
 	alias list-timers='systemctl list-timers'
 	alias list-units='systemctl list-units'
 	alias list-unit-files='systemctl list-unit-files'
+fi
+
+if command -v fzf &>/dev/null; then
+	kp() {  # Kill Process
+		local pid=$(ps -ef | sed 1d | fzf ${FZF_DEFAULT_OPTS} -m --header='[kill:process]' | awk '{print $2}')
+
+		if [[ "x${pid}" != "x" ]]; then
+		  kill -${1:-15} ${pid}
+		  kp
+		fi
+	}
 fi
 
 # Package manager aliases and utilities (especially pacman)
