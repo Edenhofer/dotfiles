@@ -151,3 +151,4 @@ inoremap <C-s> <cmd>w<CR>
 noremap <C-s> <cmd>w<CR>
 noremap <C-q> <cmd>q<CR>
 noremap <C-k> <cmd>ALEHover<CR>
+nnoremap <C-x> <cmd>bd<CR>
