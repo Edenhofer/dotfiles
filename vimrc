@@ -59,7 +59,7 @@ let g:latex_to_unicode_keymap = 1
 " Enable conceal features
 let g:tex_conceal = "abdgm"
 " Employ `ripgrep` for an awesome fuzzy search (NOTE, requires `ripgrep`!)
-let $FZF_DEFAULT_COMMAND = "rg --ignore-vcs --files"
+let $FZF_DEFAULT_COMMAND = "rg --files --hidden --ignore-vcs --glob '!.git'"
 
 " Define how concealed text is treated (default: 0, i.e. no conceal)
 au FileType tex,markdown setlocal conceallevel=2
