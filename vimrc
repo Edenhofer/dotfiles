@@ -152,3 +152,8 @@ noremap <C-s> <cmd>w<CR>
 noremap <C-q> <cmd>q<CR>
 noremap <C-k> <cmd>ALEHover<CR>
 nnoremap <C-x> <cmd>bd<CR>
+
+" Language Server Protocol (LSP) mappings
+nnoremap <silent> <c-]> <cmd>ALEGoToDefinition<CR>
+nnoremap <silent> K <cmd>ALEHover<CR>
+nnoremap <silent> gr <cmd>ALEFindReferences<CR>
