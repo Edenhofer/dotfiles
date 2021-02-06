@@ -1,3 +1,5 @@
+#!/hint/bash
+
 # Configure oh-my-zsh if present and fall back to a custom prompt if not {{{
 if [[ -d /usr/share/oh-my-zsh/ || -d "${HOME}/.oh-my-zsh/" ]]; then
 	# Path to an oh-my-zsh installation
