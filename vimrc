@@ -32,9 +32,15 @@ Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
 Plug 'lervag/vimtex'
 
 call plug#end()
+
+syntax on  " Syntax highlighting
 " Plug-in specific configuration
 let g:gruvbox_contrast_dark="hard"  " Can be either 'soft', 'medium' or 'hard'
 silent!colorscheme gruvbox
+set background=dark  " Specify either "dark" or "light"
+" Set custom background color only after `syntax on` and `background=`
+highlight Normal ctermbg=black
+
 " Fancy status-line
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
@@ -92,7 +98,6 @@ set updatetime=100  " Plug-in update-time
 
 set signcolumn=yes  " Set the sign column to always-on
 
-set background=dark  " Specify either "dark" or "light"
 
 set tabstop=4     " Number of spaces that a <Tab> in the file counts for.
 set shiftwidth=4  " Number of spaces to use for each step of (auto)indent.
@@ -107,7 +112,6 @@ set smartcase   " Override the 'ignorecase' option if the search pattern contain
 set diffopt+=iwhite " Ignore white space
 
 set linebreak       " Visual line wrapping
-syntax on           " Enable or disable syntax highlighting
 
 " Define an enable switch for hybrid line numbers
 set number relativenumber
