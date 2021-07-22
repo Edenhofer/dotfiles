@@ -31,6 +31,9 @@ Plug 'vim-airline/vim-airline'
 Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
 Plug 'lervag/vimtex'
 
+Plug 'jpalardy/vim-slime', { 'branch': 'main', 'for': 'python' }
+Plug 'hanschen/vim-ipython-cell', { 'for': 'python' }
+
 call plug#end()
 
 syntax on  " Syntax highlighting
@@ -67,6 +70,23 @@ let g:tex_conceal = "abdgm"
 " Employ `ripgrep` for an awesome fuzzy search (NOTE, requires `ripgrep`!)
 let $FZF_DEFAULT_COMMAND = "rg --files --hidden --ignore-vcs --glob '!.git'"
 let g:fzf_commands_expect = 'alt-enter'
+
+let g:slime_target = "tmux"
+if exists('$TMUX')
+	" By default the last active pane is chosen within the window
+	let g:slime_default_config = {"socket_name": get(split($TMUX, ','), 0), "target_pane": "repl-0:"}
+else
+	let g:slime_default_config = {"socket_name": "default", "target_pane": "repl-0:"}
+endif
+let g:slime_dont_ask_default = 1
+let g:slime_paste_file = "$HOME/.cache/slime_paste"
+
+" Jump to the previous and next cell in python
+au FileType python nnoremap [j :IPythonCellPrevCell<CR>
+au FileType python nnoremap ]j :IPythonCellNextCell<CR>
+au FileType python nnoremap ]k :IPythonCellNextCell<CR>
+au FileType python nnoremap ]h :IPythonCellExecuteCellVerbose<CR>
+au FileType python nnoremap ]l :IPythonCellExecuteCellVerboseJump<CR>
 
 " Define how concealed text is treated (default: 0, i.e. no conceal)
 au FileType tex,markdown setlocal conceallevel=2
