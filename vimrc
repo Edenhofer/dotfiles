@@ -71,6 +71,13 @@ let g:tex_conceal = "abdgm"
 let $FZF_DEFAULT_COMMAND = "rg --files --hidden --ignore-vcs --glob '!.git'"
 let g:fzf_commands_expect = 'alt-enter'
 
+" Start fzf in a tmux popup window (NOTE, requires `tmux >= 3.2`; see `man fzf-tmux`)
+if exists('$TMUX')
+	let g:fzf_layout = { 'tmux': '-p90%,60%' }
+else
+	let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+endif
+
 let g:slime_target = "tmux"
 if exists('$TMUX')
 	" By default the last active pane is chosen within the window
@@ -121,11 +128,11 @@ command! -bang -nargs=* Rg
 	\	fzf#vim#with_preview(), <bang>0)
 
 function! RipgrepFzf(query, fullscreen)
-  let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
-  let initial_command = printf(command_fmt, shellescape(a:query))
-  let reload_command = printf(command_fmt, '{q}')
-  let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
-  call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
+	let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case -- %s || true'
+	let initial_command = printf(command_fmt, shellescape(a:query))
+	let reload_command = printf(command_fmt, '{q}')
+	let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
+	call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
 endfunction
 
 command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
