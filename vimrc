@@ -73,6 +73,22 @@ au FileType tex,markdown setlocal conceallevel=2
 au FileType gitcommit set tw=72  " automatically wrap long commit messages
 au FileType gitcommit setlocal spell
 
+" Auto-highlight current word when idle
+" taken from https://vim.fandom.com/wiki/Auto_highlight_current_word_when_idle
+setl updatetime=300  " autosave delay, cursorhold trigger, default: 4000ms
+
+" highlight the word under cursor (CursorMoved is inperformant)
+highlight WordUnderCursor cterm=underline gui=underline
+au CursorHold * call HighlightCursorWord()
+function! HighlightCursorWord()
+	" if hlsearch is active, don't overwrite it!
+	let search = getreg('/')
+	let cword = expand('<cword>')
+	if match(cword, search) == -1
+		exe printf('match WordUnderCursor /\V\<%s\>/', escape(cword, '/\'))
+	endif
+endfunction
+
 command! -bang -nargs=? -complete=dir Files
 	\ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 command! -bang -nargs=* GGrep
