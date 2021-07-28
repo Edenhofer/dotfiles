@@ -1,3 +1,5 @@
+# May be used as final fallback configuration of all otherwise unconfigured projects.
+
 # Top-most EditorConfig file
 root = true
 
@@ -6,13 +8,42 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 # Set default charset to UTF-8
-[*.{md,sh}]
+[*.{sh,py,js,jl}]
 charset = utf-8
 
 [*.sh]
 indent_style = tab
 indent_size = 4
 
+# Honor python's 4 space indentation
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.jl]
+indent_style = tab
+indent_size = 4
+
+[*.java]
+indent_style = tab
+indent_size = 4
+
+[*.c]
+indent_style = tab
+indent_size = 4
+
+[*.cc]
+indent_style = tab
+indent_size = 4
+
 [*.md]
+indent_style = space
+indent_size = 2
+
+[*.json]
+indent_style = tab
+indent_size = 2
+
+[*.{yml,yaml}]
 indent_style = space
 indent_size = 2
