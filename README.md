@@ -56,7 +56,16 @@ ln -s $(pwd)/tmux.conf ~/.tmux.conf
 
 ### Vim-Plug
 
-Curl `https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim` to `~/.vim/autoload/plug.vim`.
+```bash
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+```
+
+### Tmux Plugin Manager
+
+```bash
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
 
 ### NeoVim
 
