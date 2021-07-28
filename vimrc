@@ -9,27 +9,23 @@ Plug 'editorconfig/editorconfig-vim'
 Plug 'jamessan/vim-gnupg'
 Plug 'mhinz/vim-signify'  " VCS sign indicators
 
-if has('nvim')
-	Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-else
-	Plug 'Shougo/deoplete.nvim'
-endif
-Plug 'deoplete-plugins/deoplete-jedi'
-Plug 'JuliaEditorSupport/julia-vim'
-
-Plug 'dense-analysis/ale'
 Plug 'tpope/vim-fugitive'  " Fancy git commands
-Plug 'ludovicchabant/vim-gutentags'
+
+Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/nvim-compe'
+
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+
 Plug 'morhetz/gruvbox'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'Shougo/neosnippet.vim'
-Plug 'Shougo/neosnippet-snippets'
 
 Plug 'vim-airline/vim-airline'
 Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
 Plug 'lervag/vimtex'
+Plug 'JuliaEditorSupport/julia-vim'
 
 Plug 'jpalardy/vim-slime', { 'branch': 'main', 'for': 'python' }
 Plug 'hanschen/vim-ipython-cell', { 'for': 'python' }
@@ -44,24 +40,13 @@ set background=dark  " Specify either "dark" or "light"
 " Set custom background color only after `syntax on` and `background=`
 highlight Normal ctermbg=black
 
+" Required by compe
+set completeopt=menuone,noselect
+" Make UltiSnip work nicely with compe
+let g:UltiSnipsExpandTrigger="<c-b>"
 " Fancy status-line
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
-" Fancy syntax error checking with ALE
-let g:ale_echo_msg_error_str = 'E'
-let g:ale_echo_msg_warning_str = 'W'
-let g:ale_echo_msg_format = '[%linter%] %s [%severity%::%code%]'
-let g:ale_python_pylint_options = '--disable=line-too-long,bad-continuation,too-many-locals,too-few-methods,too-few-public-methods,invalid-name,wrong-import-order,wrong-import-position,import-outside-toplevel,missing-module-docstring,no-else-return'
-let g:ale_python_flake8_options = '--ignore=E501,E122,E123,E124,E402,W503,W504'
-" Enable the deoplete auto-completion framework
-let g:deoplete#enable_at_startup = 1
-" Make doc-strings work again in deoplete + Jedi
-let g:deoplete#sources#jedi#show_docstring = 1
-" Do not pollute projects with .ctags files
-let g:gutentags_cache_dir = "~/.cache/ctags/"
-" Enable snipMate compatibility feature.
-let g:neosnippet#enable_snipmate_compatibility = 1
-let g:neosnippet#snippets_directory = "~/.vim/plugged/vim-snippets/snippets/"
 let g:tex_flavor = 'latex'
 " Enable automatic LaTeX to Unicode substitution in Julia
 let g:latex_to_unicode_keymap = 1
@@ -87,6 +72,8 @@ else
 endif
 let g:slime_dont_ask_default = 1
 let g:slime_paste_file = "$HOME/.cache/slime_paste"
+
+filetype plugin on
 
 " Jump to the previous and next cell in python
 au FileType python nnoremap [j :IPythonCellPrevCell<CR>
@@ -187,10 +174,6 @@ set spelllang=en_us,de_de
 " Search for selection in visual mode via `//`
 vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
 
-" Select the first, not the last suggestion by remapping {Shift-,}Tab
-inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
-inoremap <expr><s-TAB> pumvisible() ? "\<C-p>" : "\<s-TAB>"
-
 " Remaps inspired from GUI apps
 noremap <c-o> <cmd>Files<CR>
 noremap <c-p> <cmd>Commands<CR>
@@ -198,10 +181,111 @@ noremap <c-f> <cmd>Rg<CR>
 inoremap <C-s> <cmd>w<CR>
 noremap <C-s> <cmd>w<CR>
 noremap <C-q> <cmd>q<CR>
-noremap <C-k> <cmd>ALEHover<CR>
 nnoremap <C-x> <cmd>bd<CR>
 
+lua << EOF
+require'lspconfig'.pyright.setup{}
+
+require'compe'.setup {
+	enabled = true;
+	autocomplete = true;
+	debug = false;
+	min_length = 1;
+	preselect = 'enable';
+	throttle_time = 80;
+	source_timeout = 200;
+	resolve_timeout = 800;
+	incomplete_delay = 400;
+	max_abbr_width = 100;
+	max_kind_width = 100;
+	max_menu_width = 100;
+	documentation = {
+		border = { '', '' ,'', ' ', '', '', '', ' ' }, -- the border option is the same as `|help nvim_open_win|`
+		winhighlight = "NormalFloat:CompeDocumentation,FloatBorder:CompeDocumentationBorder",
+		max_width = 120,
+		min_width = 60,
+		max_height = math.floor(vim.o.lines * 0.3),
+		min_height = 1,
+	};
+
+	source = {
+		path = true;
+		buffer = true;
+		calc = true;
+		nvim_lsp = true;
+		nvim_lua = true;
+		vsnip = true;
+		ultisnips = true;
+		luasnip = true;
+	};
+}
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+capabilities.textDocument.completion.completionItem.resolveSupport = {
+	properties = {
+		'documentation',
+		'detail',
+		'additionalTextEdits',
+	}
+}
+
+require'lspconfig'.rust_analyzer.setup {
+	capabilities = capabilities,
+}
+
+local t = function(str)
+	return vim.api.nvim_replace_termcodes(str, true, true, true)
+end
+
+local check_back_space = function()
+	local col = vim.fn.col('.') - 1
+	return col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') ~= nil
+end
+
+-- Use (s-)tab to:
+--- move to prev/next item in completion menuone
+--- jump to prev/next snippet's placeholder
+_G.tab_complete = function()
+	if vim.fn.pumvisible() == 1 then
+		return t "<C-n>"
+	elseif check_back_space() then
+		return t "<Tab>"
+	else
+		return vim.fn['compe#complete']()
+	end
+end
+_G.s_tab_complete = function()
+	if vim.fn.pumvisible() == 1 then
+		return t "<C-p>"
+	else
+		return t "<S-Tab>"
+	end
+end
+
+vim.api.nvim_set_keymap("i", "<Tab>", "v:lua.tab_complete()", {expr = true})
+vim.api.nvim_set_keymap("s", "<Tab>", "v:lua.tab_complete()", {expr = true})
+vim.api.nvim_set_keymap("i", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
+vim.api.nvim_set_keymap("s", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
+
+--This line is important for auto-import
+vim.api.nvim_set_keymap('i', '<cr>', 'compe#confirm("<cr>")', { expr = true })
+vim.api.nvim_set_keymap('i', '<c-space>', 'compe#complete()', { expr = true })
+
+vim.api.nvim_set_keymap("i", "<CR>", "compe#confirm({ 'keys': '<CR>', 'select': v:true })", { expr = true })
+EOF
+
+highlight link CompeDocumentation NormalFloat
+
 " Language Server Protocol (LSP) mappings
-nnoremap <silent> <c-]> <cmd>ALEGoToDefinition<CR>
-nnoremap <silent> K <cmd>ALEHover<CR>
-nnoremap <silent> gr <cmd>ALEFindReferences<CR>
+nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
+nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<CR>
+nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<CR>
+nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<CR>
+nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<CR>
+nnoremap <silent> K <cmd>lua vim.lsp.buf.hover()<CR>
+nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
+"nnoremap <silent> 1gD <cmd>lua vim.lsp.buf.type_definition()<CR>
+"nnoremap <silent> g0 <cmd>lua vim.lsp.buf.document_symbol()<CR>
+"nnoremap <silent> gW <cmd>lua vim.lsp.buf.workspace_symbol()<CR>
+"nnoremap <silent> gd <cmd>lua vim.lsp.buf.declaration()<CR>
