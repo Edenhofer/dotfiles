@@ -19,7 +19,7 @@ _light_grey='\[\e[1;38;5;245m\]'
 _another_grey='\[\e[1;38;5;242m\]'
 _violet='\[\e[1;38;5;93m\]'
 _red='\[\e[1;38;5;1m\]'
-_orange='\[\e[1;38;5;214m\]'
+_yellow='\[\e[1;38;5;214m\]'
 _no_color='\[\e[0m\]'
 _shpwd() {
     dir=${PWD%/*} && last=${PWD##*/}
@@ -27,11 +27,17 @@ _shpwd() {
     echo "/${res}${last}"
 }
 if (( UID == 0 )); then
-	# '\${?#"0"}' can be used to display the last return code
-	PS1="${_grey}${_red}\u${_another_grey}@${_another_grey}\h${_another_grey} ${_blue}\$(_shpwd)${_another_grey} ${_no_color}# "
+	host_color="${_red}"
+	prompt_sign="# "
+elif [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
+	host_color="${_yellow}"
+	prompt_sign="> "
 else
-	PS1="${_grey}${_orange}\u${_another_grey}@${_another_grey}\h${_another_grey} ${_blue}\$(_shpwd)${_another_grey} ${_no_color}> "
+	host_color="${_green}"
+	prompt_sign="> "
 fi
+# '\${?#"0"}' can be used to display the last return code
+PS1="${_grey}${host_color}\u${_another_grey}@${_another_grey}\h${_another_grey} ${_blue}\$(_shpwd)${_another_grey} ${_no_color}${prompt_sign}"
 
 # Shell configuration
 shopt -s cdspell        # Correct cd typos

@@ -44,10 +44,18 @@ else
 	else
 		username_color="%F{red}"
 	fi
-	host_color="%F{green}"
+	if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
+		# Choose a random color based on the name of the host
+		#host_color_palette=("%F{yellow}" "%F{orange}" "%F{cyan}" "%F{magenta}")
+		#choice=$(($(RANDOM=${HOST}; echo ${RANDOM}) % ${#host_color_palette[@]}))
+		#host_color=${host_color_palette[$choice]}
+		host_color="%F{yellow}"
+	else
+		host_color="%F{green}"
+	fi
 	path_color="%F{blue}"
 	_shpwd() {
-	  echo ${${:-/${(j:/:)${(M)${(s:/:)${(D)PWD:h}}#(|.)[^.]}}/${PWD:t}}//\/~/\~}
+		echo ${${:-/${(j:/:)${(M)${(s:/:)${(D)PWD:h}}#(|.)[^.]}}/${PWD:t}}//\/~/\~}
 	}
 
 	function zle-line-init zle-keymap-select {
