@@ -126,7 +126,7 @@ command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 
 set updatetime=100  " Plug-in update-time
 
-set signcolumn=yes  " Set the sign column to always-on
+set signcolumn=number  " Set the sign column to always-on
 
 set scrolloff=6  " Keep a couple of lines below and above the cursor
 
