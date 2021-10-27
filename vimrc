@@ -22,6 +22,8 @@ Plug 'morhetz/gruvbox'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
+Plug 'tpope/vim-commentary'
+
 Plug 'vim-airline/vim-airline'
 Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
 Plug 'lervag/vimtex'
@@ -173,6 +175,11 @@ set spelllang=en_us,de_de
 
 " Search for selection in visual mode via `//`
 vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
+
+" Comment code using commentary.vim (C-_ is Ctrl+/)
+noremap <C-_> <cmd>Commentary<CR>
+vnoremap <C-_> :'<,'>Commentary<CR>
+inoremap <C-_> <cmd>Commentary<CR>
 
 " Remaps inspired from GUI apps
 noremap <c-o> <cmd>Files<CR>
