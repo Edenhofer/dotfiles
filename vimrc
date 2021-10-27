@@ -144,6 +144,7 @@ set smartcase   " Override the 'ignorecase' option if the search pattern contain
 
 " set diffopt+=iwhite  " Ignore white space
 
+set whichwrap+=<,>,[,]  " Remove line barrier of left and right arrow keys
 set linebreak       " Visual line wrapping
 
 " Define an enable switch for hybrid line numbers
@@ -180,6 +181,14 @@ vnoremap // y/\V<C-R>=escape(@",'/\')<CR><CR>
 noremap <C-_> <cmd>Commentary<CR>
 vnoremap <C-_> :'<,'>Commentary<CR>
 inoremap <C-_> <cmd>Commentary<CR>
+
+" Move cursor by display line not actual line
+noremap <Up> gk
+vnoremap <Up> gk
+inoremap <Up> <C-o>gk
+noremap <Down> gj
+vnoremap <Down> gj
+inoremap <Down> <C-o>gj
 
 " Remaps inspired from GUI apps
 noremap <c-o> <cmd>Files<CR>
