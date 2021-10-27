@@ -142,7 +142,7 @@ set incsearch   " Show immediately where the so far typed pattern matches
 set ignorecase  " Ignore case in search patterns
 set smartcase   " Override the 'ignorecase' option if the search pattern contains uppercase
 
-set diffopt+=iwhite " Ignore white space
+" set diffopt+=iwhite  " Ignore white space
 
 set linebreak       " Visual line wrapping
 
