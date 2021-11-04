@@ -130,7 +130,24 @@ command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 
 set updatetime=100  " Plug-in update-time
 
-set signcolumn=number  " Set the sign column to always-on
+set signcolumn=no  " Disable the sign column and instead color the line numbers
+let g:signify_sign_show_count=0
+
+highlight LspDiagnosticsLineNrError guibg=#51202A guifg=#FF0000 gui=bold
+highlight LspDiagnosticsLineNrWarning guibg=#51412A guifg=#FFA500 gui=bold
+highlight LspDiagnosticsLineNrInformation guibg=#1E535D guifg=#00FFFF gui=bold
+highlight LspDiagnosticsLineNrHint guibg=#1E205D guifg=#0000FF gui=bold
+
+sign define DiagnosticSignError text= texthl=LspDiagnosticsSignError linehl= numhl=LspDiagnosticsLineNrError
+sign define DiagnosticSignWarn text= texthl=LspDiagnosticsSignWarning linehl= numhl=LspDiagnosticsLineNrWarning
+sign define DiagnosticSignInfo text= texthl=LspDiagnosticsSignInformation linehl= numhl=LspDiagnosticsLineNrInformation
+sign define DiagnosticSignHint text= texthl=LspDiagnosticsSignHint linehl= numhl=LspDiagnosticsLineNrHint
+
+sign define SignifyAdd text=+ linehl= texthl=SignifySignAdd numhl=SignifySignAdd
+sign define SignifyChange text=! linehl= texthl=SignifySignChange numhl=SignifySignChange
+sign define SignifyChangeDelete text=!‾ linehl= texthl=SignifySignChangeDelete numhl=SignifySignChangeDelete
+sign define SignifyRemoveFirstLine text=‾ linehl= texthl=SignifySignDeleteFirstLine numhl=SignifySignDeleteFirstLine
+sign define SignifyDeleteMore text=_ linehl= texthl=SignifySignDelete numhl=SignifySignDelete
 
 set scrolloff=6  " Keep a couple of lines below and above the cursor
 
