@@ -184,10 +184,7 @@ set mouse=a
 " Use the global clipboard for copy-pasting, a.k.a. yanking
 set clipboard=unnamedplus
 
-set hidden
-" Define keyboard shortcuts for switching between buffers
-nnoremap <C-h> <cmd>bprev<CR>
-nnoremap <C-l> <cmd>bnext<CR>
+set hidden  " Hide buffers instead of unloading them
 
 " Spell checking
 set spell
@@ -217,6 +214,14 @@ inoremap <C-s> <cmd>w<CR>
 noremap <C-s> <cmd>w<CR>
 noremap <C-q> <cmd>q<CR>
 nnoremap <C-x> <cmd>bd<CR>
+" Switch buffers in various ways
+nnoremap <Tab> <cmd>bnext<CR>
+nnoremap <S-Tab> <cmd>bprev<CR>
+nnoremap ]b <cmd>bnext<CR>
+nnoremap [b <cmd>bprev<CR>
+nnoremap ]B <cmd>blast<CR>
+nnoremap [B <cmd>bfirst<CR>
+nnoremap <Leader>b :ls<CR>:b<Space>
 
 lua << EOF
 local nvim_lsp = require('lspconfig')
