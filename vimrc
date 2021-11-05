@@ -198,6 +198,10 @@ noremap <C-_> <cmd>Commentary<CR>
 vnoremap <C-_> :'<,'>Commentary<CR>
 inoremap <C-_> <cmd>Commentary<CR>
 
+" Glance at diffs with signify
+nnoremap gp <cmd>SignifyHunkDiff<CR>
+nnoremap gu <cmd>SignifyHunkUndo<CR>
+
 " Move cursor by display line not actual line
 noremap <Up> gk
 vnoremap <Up> gk
@@ -209,6 +213,7 @@ inoremap <Down> <C-o>gj
 " Remaps inspired from GUI apps
 noremap <c-o> <cmd>Files<CR>
 noremap <c-p> <cmd>Commands<CR>
+noremap <c-h> <cmd>Commits<CR>
 noremap <c-f> <cmd>Rg<CR>
 inoremap <C-s> <cmd>w<CR>
 noremap <C-s> <cmd>w<CR>
@@ -223,6 +228,7 @@ nnoremap ]B <cmd>blast<CR>
 nnoremap [B <cmd>bfirst<CR>
 nnoremap <Leader>b :ls<CR>:b<Space>
 
+nnoremap <Leader>h <cmd>BCommits<CR>
 lua << EOF
 local nvim_lsp = require('lspconfig')
 
