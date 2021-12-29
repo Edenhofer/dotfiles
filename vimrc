@@ -227,6 +227,8 @@ nnoremap [b <cmd>bprev<CR>
 nnoremap ]B <cmd>blast<CR>
 nnoremap [B <cmd>bfirst<CR>
 nnoremap <Leader>b :ls<CR>:b<Space>
+nnoremap <Leader># <cmd>b#<CR>
+nnoremap <Leader><Leader> <cmd>b#<CR>
 
 nnoremap <Leader>h <cmd>BCommits<CR>
 lua << EOF
