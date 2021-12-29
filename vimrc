@@ -20,7 +20,7 @@ Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
 Plug 'morhetz/gruvbox'
-Plug 'nvim-treesitter/nvim-treesitter', {'branch': '0.5-compat', 'do': ':TSUpdate'}  " Update parsers on update
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " Update parsers on update
 Plug 'numirias/semshi', { 'do': ':UpdateRemotePlugins' }
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -38,7 +38,7 @@ Plug 'hanschen/vim-ipython-cell', { 'for': 'python' }
 
 call plug#end()
 
-syntax on  " Syntax highlighting
+syntax on  " Syntax highlighting; mostly superseded by tree-sitter
 " Plug-in specific configuration
 let g:gruvbox_contrast_dark="hard"  " Can be either 'soft', 'medium' or 'hard'
 silent!colorscheme gruvbox
