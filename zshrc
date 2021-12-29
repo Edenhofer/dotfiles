@@ -304,6 +304,7 @@ alias p='ps -u `/usr/bin/whoami` -o uid,pid,ppid,class,c,nice,stime,tty,cputime,
 alias r='echo $?'
 alias c='clear'
 alias v="${EDITOR}"  # Use either neovim, vim or vi
+alias g="git"
 alias cmount='mount | column -t'
 alias meminfo='free -m -l -t'
 alias intercept='sudo strace -ff -e trace=write -e write=1,2 -p'
