@@ -79,11 +79,12 @@ let g:slime_python_ipython = 1
 filetype plugin on
 
 " Jump to the previous and next cell in python
-au FileType python nnoremap [j :IPythonCellPrevCell<CR>
 au FileType python nnoremap ]j :IPythonCellNextCell<CR>
-au FileType python nnoremap ]k :IPythonCellNextCell<CR>
-au FileType python nnoremap ]h :IPythonCellExecuteCellVerbose<CR>
+au FileType python nnoremap ]k :IPythonCellPrevCell<CR>
 au FileType python nnoremap ]l :IPythonCellExecuteCellVerboseJump<CR>
+au FileType python nnoremap <C-j> :SlimeSendCurrentLine<CR><cmd>+1<CR>
+au FileType python nnoremap <C-l> :SlimeSendCurrentLine<CR>
+au FileType python nnoremap <C-c><C-c> <cmd>SlimeParagraphSend<CR>
 
 " Define how concealed text is treated (default: 0, i.e. no conceal)
 au FileType tex,markdown setlocal conceallevel=2
