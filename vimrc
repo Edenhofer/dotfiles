@@ -87,7 +87,7 @@ au FileType python nnoremap ]l :IPythonCellExecuteCellVerboseJump<CR>
 
 " Define how concealed text is treated (default: 0, i.e. no conceal)
 au FileType tex,markdown setlocal conceallevel=2
-au FileType gitcommit set tw=72  " automatically wrap long commit messages
+au FileType gitcommit setlocal tw=72  " automatically wrap long commit messages
 au FileType gitcommit setlocal spell
 
 " Auto-highlight current word when idle
