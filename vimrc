@@ -61,12 +61,8 @@ let g:tex_conceal = "abdgm"
 let $FZF_DEFAULT_COMMAND = "rg --files --hidden --ignore-vcs --glob '!.git'"
 let g:fzf_commands_expect = 'alt-enter'
 
-" Start fzf in a tmux popup window (NOTE, requires `tmux >= 3.2`; see `man fzf-tmux`)
-if exists('$TMUX')
-	let g:fzf_layout = { 'tmux': '-p90%,60%' }
-else
-	let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
-endif
+" Start fzf in a vim window
+let g:fzf_layout = { 'down': '~50%' }
 
 let g:slime_target = "tmux"
 if exists('$TMUX')
