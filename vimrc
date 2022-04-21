@@ -163,6 +163,7 @@ set smartcase   " Override the 'ignorecase' option if the search pattern contain
 " set diffopt+=iwhite  " Ignore white space
 
 set whichwrap+=<,>,[,]  " Remove line barrier of left and right arrow keys
+set wrap
 set linebreak       " Visual line wrapping
 
 " Define an enable switch for hybrid line numbers
