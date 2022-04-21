@@ -217,6 +217,19 @@ nmap <C-Down> 2<C-e>
 vmap <C-Down> 2<C-e>
 imap <C-Down> <Esc>2<C-e>a
 
+nnoremap <A-j> :m .+1<CR>==
+vnoremap <A-j> :m '>+1<CR>gv=gv
+inoremap <A-j> <Esc>:m .+1<CR>==gi
+nnoremap <A-k> :m .-2<CR>==
+vnoremap <A-k> :m '<-2<CR>gv=gv
+inoremap <A-k> <Esc>:m .-2<CR>==gi
+nnoremap <A-Down> :m .+1<CR>==
+vnoremap <A-Down> :m '>+1<CR>gv=gv
+inoremap <A-Down> <Esc>:m .+1<CR>==gi
+nnoremap <A-Up> :m .-2<CR>==
+vnoremap <A-Up> :m '<-2<CR>gv=gv
+inoremap <A-Up> <Esc>:m .-2<CR>==gi
+
 " Remaps inspired from GUI apps
 noremap <c-o> <cmd>Files<CR>
 noremap <c-p> <cmd>Commands<CR>
