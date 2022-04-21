@@ -210,6 +210,13 @@ noremap <Down> gj
 vnoremap <Down> gj
 inoremap <Down> <C-o>gj
 
+nmap <C-Up> 2<C-y>
+vmap <C-Up> 2<C-y>
+imap <C-Up> <Esc>2<C-y>a
+nmap <C-Down> 2<C-e>
+vmap <C-Down> 2<C-e>
+imap <C-Down> <Esc>2<C-e>a
+
 " Remaps inspired from GUI apps
 noremap <c-o> <cmd>Files<CR>
 noremap <c-p> <cmd>Commands<CR>
