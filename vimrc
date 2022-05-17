@@ -29,7 +29,6 @@ Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-commentary'
 
 Plug 'vim-airline/vim-airline'
-Plug 'KeitaNakamura/tex-conceal.vim', {'for': 'tex'}
 Plug 'lervag/vimtex'
 Plug 'JuliaEditorSupport/julia-vim'
 
@@ -55,8 +54,8 @@ let g:airline#extensions#tabline#enabled = 1
 let g:tex_flavor = 'latex'
 " Enable automatic LaTeX to Unicode substitution in Julia
 let g:latex_to_unicode_keymap = 1
-" Enable conceal features
-let g:tex_conceal = "abdgm"
+let g:vimtex_indent_enabled = 0
+let g:vimtex_syntax_enabled = 0
 " Employ `ripgrep` for an awesome fuzzy search (NOTE, requires `ripgrep`!)
 let $FZF_DEFAULT_COMMAND = "rg --files --hidden --ignore-vcs --glob '!.git'"
 let g:fzf_commands_expect = 'alt-enter'
@@ -340,7 +339,7 @@ cmp.setup {
 }
 
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = { 'python', 'c', 'cpp', 'rust', 'julia' },  -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = 'all',  -- "all", or a list of languages
   ignore_install = {},  -- list of parsers to ignore installing
   highlight = {
     enable = true,  -- false will disable the whole extension
