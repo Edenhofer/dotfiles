@@ -21,7 +21,7 @@ trap {
  stty rows $rows columns $cols < $spawn_out(slave,name)
 } WINCH
 
-set timeout 5
+set timeout 2
 
 set cmd [lrange $argv 2 end]
 set password_path [lindex $argv 0]
@@ -32,17 +32,17 @@ set otp [exec oathtool --totp @$otp_path]
 eval spawn $cmd
 expect {
 	-nocase "password:" {
-		sleep_random 800 1600
+		# sleep_random 800 1600
 		send "$password\r"
 		exp_continue
 	}
 	-nocase "otp:" {
-		sleep_random 500 1100
+		# sleep_random 500 1100
 		send "$otp\r"
 		exp_continue
 	}
 	-nocase "verification code:" {
-		sleep_random 500 1100
+		# sleep_random 500 1100
 		send "$otp\r"
 		exp_continue
 	}
