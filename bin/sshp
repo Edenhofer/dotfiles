@@ -45,7 +45,7 @@ proc parseargs {argc argv} {
 	global OPTS
 	global arg_off
 	foreach {key val} $argv {
-		switch -exact -- $key {
+		switch -glob -- $key {
 			"-p" {
 				set OPTS(password_path) $val
 				set arg_off [expr $arg_off + 2]
@@ -55,6 +55,7 @@ proc parseargs {argc argv} {
 				set arg_off [expr $arg_off + 2]
 			}
 			"-h" { usage 0 }
+			"*" { break }  # break after first non-parameter arguments
 		}
 	}
 }
