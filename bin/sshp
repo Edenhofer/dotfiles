@@ -1,11 +1,21 @@
 #!/usr/bin/expect
 
+# Trap changes in width and height (sigwinch) and pass it to the child we
+# spawned
+trap {
+	set rows [stty rows]
+	set cols [stty columns]
+	stty rows $rows columns $cols < $spawn_out(slave,name)
+} WINCH
+
+
 proc slurp {file} {
-    set fh [open $file r]
-    set ret [read $fh]
-    close $fh
-    return $ret
+	set fh [open $file r]
+	set ret [read $fh]
+	close $fh
+	return $ret
 }
+
 
 proc sleep_random {min max} {
 		# Hack around missing float arithmetic in bash using printf
@@ -13,24 +23,72 @@ proc sleep_random {min max} {
 		return 0
 }
 
-# Trap changes in width and height (sigwinch) and pass it to the child we
-# spawned
-trap {
- set rows [stty rows]
- set cols [stty columns]
- stty rows $rows columns $cols < $spawn_out(slave,name)
-} WINCH
+
+proc usage {code} {
+	puts [expr {$code ? "stderr" : "stdout"}] \
+	"$::argv0 -p password_path -t otp_path *cmd*
+	-p password_path    password
+	-t otp_path         OTP token
+	-h                  help"
+	exit $code
+}
+
+
+set arg_off 0
+array set OPTS {
+	password_path ""
+	otp_path ""
+}
+
+
+proc parseargs {argc argv} {
+	global OPTS
+	global arg_off
+	foreach {key val} $argv {
+		switch -exact -- $key {
+			"-p" {
+				set OPTS(password_path) $val
+				set arg_off [expr $arg_off + 2]
+			}
+			"-t" {
+				set OPTS(otp_path) $val
+				set arg_off [expr $arg_off + 2]
+			}
+			"-h" { usage 0 }
+		}
+	}
+}
+
+
+parseargs $argc $argv
+set cmd [lrange $argv $arg_off end]
+
+if { $OPTS(password_path) == "" || $OPTS(otp_path) == "" || $cmd == "" } {
+	usage 1
+}
+set password ""
+if { $OPTS(password_path) != "" } {
+	set password [slurp $OPTS(password_path)]
+}
+set otp ""
+if { $OPTS(otp_path) != "" } {
+	set otp [exec oathtool --totp @$OPTS(otp_path)]
+}
 
 set timeout 2
-
-set cmd [lrange $argv 2 end]
-set password_path [lindex $argv 0]
-set otp_path [lindex $argv 1]
-set password [slurp $password_path]
-set otp [exec oathtool --totp @$otp_path]
+match_max 100000
 
 eval spawn $cmd
 expect {
+	"*VPN" {
+		expect -nocase "password:"
+		# sleep_random 800 1600
+		send "$password\r"
+		expect -nocase "password:"
+		# sleep_random 800 1600
+		send "$otp\r"
+		interact
+	}
 	-nocase "password:" {
 		# sleep_random 800 1600
 		send "$password\r"
