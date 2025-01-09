@@ -1,74 +1,35 @@
 #!/hint/bash
 
-# Configure oh-my-zsh if present and fall back to a custom prompt if not {{{
-if [[ -d /usr/share/oh-my-zsh/ || -d "${HOME}/.oh-my-zsh/" ]]; then
-	# Path to an oh-my-zsh installation
-	if [[ -d /usr/share/oh-my-zsh/ ]]; then
-		ZSH=/usr/share/oh-my-zsh/
-	else
-		ZSH="${HOME}/.oh-my-zsh/"
-	fi
-
-	# ZSH theme to load
-	# Use a different theme for ssh sessions, containers and local
-	if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
-		ZSH_THEME="agnoster" # Fancy and colorful
-	elif systemd-detect-virt &>/dev/null; then
-		ZSH_THEME="agnoster" # Fancy and colorful
-	else
-		ZSH_THEME="robbyrussell" # Plain and simple
-	fi
-
-	# Disable bi-weekly auto-update checks of oh-my-zsh
-	DISABLE_AUTO_UPDATE="true"
-
-	# Disable marking untracked VCS files as dirty (speed up repository checks)
-	DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-	# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-	# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-	plugins=(vi-mode git dirhistory)
-
-	# Oh-my-zsh caching
-	ZSH_CACHE_DIR="${HOME}/.oh-my-zsh-cache"
-	if [[ ! -d "${ZSH_CACHE_DIR}" ]]; then
-		mkdir "${ZSH_CACHE_DIR}"
-	fi
-
-	# Initiate oh-my-zsh
-	source "${ZSH}/oh-my-zsh.sh"
+# Custom prompt {{{
+if (( UID != 0 )); then
+	username_color="%F{blue}"
 else
-	# Configure a fallback prompt
-	if (( UID != 0 )); then
-		username_color="%F{blue}"
-	else
-		username_color="%F{red}"
-	fi
-	if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
-		# Choose a random color based on the name of the host
-		#host_color_palette=("%F{yellow}" "%F{orange}" "%F{cyan}" "%F{magenta}")
-		#choice=$(($(RANDOM=${HOST}; echo ${RANDOM}) % ${#host_color_palette[@]}))
-		#host_color=${host_color_palette[$choice]}
-		host_color="%F{yellow}"
-	else
-		host_color="%F{green}"
-	fi
-	path_color="%F{blue}"
-	_shpwd() {
-		echo ${${:-/${(j:/:)${(M)${(s:/:)${(D)PWD:h}}#(|.)[^.]}}/${PWD:t}}//\/~/\~}
-	}
-
-	function zle-line-init zle-keymap-select {
-		PROMPT="${username_color}%n%f@${host_color}%B%m%b%f ${path_color}%B$(_shpwd)%b%f > "
-
-		# Tweak the reverse side of PROMPT / PS1 to highlight special vi edit modes and the current git branch
-		vim_prompt="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
-		RPROMPT="${${KEYMAP/vicmd/$vim_prompt}/(main|viins)/} $(git rev-parse --abbrev-ref HEAD 2>/dev/null) $EPS1"
-		zle reset-prompt
-	}
-	zle -N zle-line-init
-	zle -N zle-keymap-select
+	username_color="%F{red}"
 fi
+if [[ -n "${SSH_CLIENT}" || -n "${SSH_TTY}" ]]; then
+	# Choose a random color based on the name of the host
+	#host_color_palette=("%F{yellow}" "%F{orange}" "%F{cyan}" "%F{magenta}")
+	#choice=$(($(RANDOM=${HOST}; echo ${RANDOM}) % ${#host_color_palette[@]}))
+	#host_color=${host_color_palette[$choice]}
+	host_color="%F{yellow}"
+else
+	host_color="%F{green}"
+fi
+path_color="%F{blue}"
+_shpwd() {
+	echo ${${:-/${(j:/:)${(M)${(s:/:)${(D)PWD:h}}#(|.)[^.]}}/${PWD:t}}//\/~/\~}
+}
+
+function zle-line-init zle-keymap-select {
+	PROMPT="${username_color}%n%f@${host_color}%B%m%b%f ${path_color}%B$(_shpwd)%b%f > "
+
+	# Tweak the reverse side of PROMPT / PS1 to highlight special vi edit modes and the current git branch
+	vim_prompt="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
+	RPROMPT="${${KEYMAP/vicmd/$vim_prompt}/(main|viins)/} $(git rev-parse --abbrev-ref HEAD 2>/dev/null) $EPS1"
+	zle reset-prompt
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
 # }}}
 
 # Keybindings {{{
