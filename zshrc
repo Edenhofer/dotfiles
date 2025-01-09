@@ -17,7 +17,7 @@ else
 fi
 path_color="%F{blue}"
 _shpwd() {
-	echo ${${:-/${(j:/:)${(M)${(s:/:)${(D)PWD:h}}#(|.)[^.]}}/${PWD:t}}//\/~/\~}
+	[[ ${(D)PWD} == "~" ]] && echo "~" || echo ${${:-${(j:/:)${(M)${(s:/:)${(D)PWD:h}}#(|.)[^.]}}/${PWD:t}}//\/~/\~}
 }
 
 function zle-line-init zle-keymap-select {
