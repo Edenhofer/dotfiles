@@ -238,11 +238,11 @@ export LESS='-i -n -w -M -R -P%t?f%f \
 :stdin .?pb%pb\%:?lbLine %lb:?bbByte %bb:-...'
 
 # Extending the PATH
+[[ -d "${HOME}/.pixi/bin" ]] && export PATH="${HOME}/.pixi/bin:${PATH}"
 [[ -d /usr/lib/ccache/bin ]] && export PATH="/usr/lib/ccache/bin/:${PATH}"
-[[ -d "${HOME}/c" ]] && export PATH="${HOME}/c:${PATH}"
-[[ -d "${HOME}/bin" ]] && export PATH="${HOME}/bin:${PATH}"
-[[ -d "${HOME}/.local/bin" ]] && export PATH="${HOME}/.local/bin:${PATH}"
 export PATH="${PATH}:."
+[[ -d "${HOME}/.local/bin" ]] && export PATH="${HOME}/.local/bin:${PATH}"
+[[ -d "${HOME}/bin" ]] && export PATH="${HOME}/bin:${PATH}"
 
 # Alter the GOPATH
 export GOPATH="${HOME}/.go"
