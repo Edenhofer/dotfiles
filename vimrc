@@ -79,7 +79,8 @@ filetype plugin on
 " Jump to the previous and next cell in python
 au FileType python nnoremap ]j :IPythonCellNextCell<CR>
 au FileType python nnoremap ]k :IPythonCellPrevCell<CR>
-au FileType python nnoremap ]l :IPythonCellExecuteCellVerboseJump<CR>
+au FileType python nnoremap ]l :IPythonCellExecuteCellJump<CR>
+au FileType python nnoremap ]o :IPythonCellExecuteCell<CR>
 au FileType python nnoremap <C-j> :SlimeSendCurrentLine<CR><cmd>+1<CR>
 au FileType python nnoremap <C-l> :SlimeSendCurrentLine<CR>
 au FileType python nnoremap <C-c><C-c> <cmd>SlimeParagraphSend<CR>
