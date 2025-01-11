@@ -16,7 +16,6 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
 
-Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 
 Plug 'morhetz/gruvbox'
@@ -46,8 +45,6 @@ set background=dark  " Specify either "dark" or "light"
 highlight LineNr guibg=None guifg=#505050
 highlight Normal ctermbg=black
 
-" Make UltiSnip play nicely with completion
-let g:UltiSnipsExpandTrigger="<c-b>"
 " Fancy status-line
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
