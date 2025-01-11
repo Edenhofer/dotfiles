@@ -46,6 +46,8 @@ bindkey '^N' down-history
 bindkey '^w' backward-kill-word
 bindkey '^r' history-incremental-search-backward
 bindkey '^H' backward-kill-word
+bindkey "^[b" backward-word # Jump a word backward using option + left arrow key
+bindkey "^[f" forward-word  # Jump a word forward using option + right arrow key
 bindkey '\e[3;5~' kill-word
 bindkey '\e[1~' beginning-of-line
 bindkey '\e[4~' end-of-line
