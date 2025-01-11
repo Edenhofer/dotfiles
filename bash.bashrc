@@ -170,7 +170,6 @@ alias intercept='sudo strace -ff -e trace=write -e write=1,2 -p'
 alias listen='lsof -P -i -n'
 alias port='ss -tulanp'
 alias genpasswd="openssl rand -base64 128"
-alias open="xdg-open"
 
 # Create sudo aliases for various commands
 if (( UID != 0 )); then
@@ -201,6 +200,15 @@ if command -v systemctl &>/dev/null; then
 	alias list-timers='systemctl list-timers'
 	alias list-units='systemctl list-units'
 	alias list-unit-files='systemctl list-unit-files'
+fi
+
+if !command -v open &>/dev/null; then
+	open() {
+		# TODO: Better; create a fifo to store the errors and print them if the
+		# processes exits with a non-zero return value (FIFO has a default max
+		# capacity so there is no need to harden against overflows)
+		2>/dev/null xdg-open "${@}" &
+	}
 fi
 
 if command -v fzf &>/dev/null; then
