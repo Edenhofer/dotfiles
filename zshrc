@@ -316,13 +316,28 @@ if ! command -v open &>/dev/null; then
 fi
 
 if command -v fzf &>/dev/null; then
+	fcd() {
+		local fzf_opts=()
+		(( $# != 0 )) && fzf_opts=('-q' "${*}")
+		cd "$(fzf --walker=dir ${fzf_opts[@]})"
+	}
+	alias cdf="fcd"
+
 	kp() {  # Kill Process
-		local pid=$(ps -ef | sed 1d | fzf ${FZF_DEFAULT_OPTS} -m --header='[kill:process]' | awk '{print $2}')
+		local fzf_opts=()
+		(( $# != 0 )) && fzf_opts=('-q' "${*}")
+		local pid=$(ps -ef | sed 1d | fzf ${FZF_DEFAULT_OPTS} "${fzf_opts[@]}" -m --header='[kill:process]' | awk '{print $2}')
 
 		if [[ "x${pid}" != "x" ]]; then
-		  kill -${1:-15} ${pid}
+		  kill -15 ${pid}
 		  kp
 		fi
+	}
+
+	fopen() {  # Open by fuzzy search
+		local fzf_opts=()
+		(( $# != 0 )) && fzf_opts=('-q' "${*}")
+		open "$(fzf ${fzf_opts[@]})"
 	}
 fi
 
