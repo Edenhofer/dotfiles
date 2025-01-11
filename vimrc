@@ -25,11 +25,13 @@ Plug 'numirias/semshi', { 'do': ':UpdateRemotePlugins' }
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
+Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 
 Plug 'vim-airline/vim-airline'
 Plug 'lervag/vimtex'
 Plug 'JuliaEditorSupport/julia-vim'
+Plug 'chrisbra/csv.vim'
 
 Plug 'jpalardy/vim-slime', { 'branch': 'main', 'for': 'python' }
 Plug 'hanschen/vim-ipython-cell', { 'for': 'python' }
