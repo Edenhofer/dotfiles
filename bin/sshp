@@ -95,12 +95,7 @@ expect {
 		send "$password\r"
 		exp_continue
 	}
-	-nocase "otp:" {
-		# sleep_random 500 1100
-		send "$otp\r"
-		exp_continue
-	}
-	-nocase "verification code:" {
+	-re "(?i)(otp|verificationcode|verification code):" {
 		# sleep_random 500 1100
 		send "$otp\r"
 		exp_continue
