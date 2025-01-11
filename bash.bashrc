@@ -79,8 +79,10 @@ HISTIGNORE='&:exit:logout:clear:history'
 # Export a default editor
 if command -v nvim &>/dev/null; then
 	export EDITOR="nvim"
+	export DIFFPROG="nvim -d"
 elif command -v vim &>/dev/null; then
 	export EDITOR="vim"
+	export DIFFPROG="vim -d"
 elif command -v vi &>/dev/null; then
 	export EDITOR="vi"
 elif command -v emacs &>/dev/null; then
