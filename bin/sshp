@@ -76,7 +76,7 @@ if { $OPTS(otp_path) != "" } {
 	set otp [exec oathtool --totp @$OPTS(otp_path)]
 }
 
-set timeout 2
+set timeout 5
 match_max 100000
 
 eval spawn $cmd
