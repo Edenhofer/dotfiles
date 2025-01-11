@@ -250,6 +250,10 @@ nnoremap <Leader># <cmd>b#<CR>
 nnoremap <Leader><Leader> <cmd>b#<CR>
 
 nnoremap <Leader>h <cmd>BCommits<CR>
+vnoremap <Leader>h :'<,'>BCommits<CR>
+nnoremap gb <cmd>BCommits<CR>
+vnoremap gb :'<,'>BCommits<CR>
+
 lua << EOF
 local nvim_lsp = require('lspconfig')
 
